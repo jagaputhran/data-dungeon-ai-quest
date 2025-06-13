@@ -21,12 +21,17 @@ const BattleMode = ({ onScoreUpdate }: BattleModeProps) => {
   const [cleanedDataset, setCleanedDataset] = useState("");
   const [aiWorkflow, setAiWorkflow] = useState<string[]>([]);
 
-  const corruptedDataset = `name,age,salary,join_date
-Alice,,52000,2023/01/12
-Bob,27,NA,2023-02-15
-Charlie,29,57000,2023-15-01
-,34,60000,2023-03-05
-David,32,abc,2023/03/10`;
+  const corruptedDataset = `name,age,salary,join_date,department,email
+Alice Smith,,52000,2023/01/12,Engineering,alice@company
+Bob Johnson,27,NA,2023-02-15,hr,bob@comp.com
+Charlie Brown,29,57000,2023-15-01,Marketing,CHARLIE@COMPANY.COM
+,34,60000,2023-03-05,Sales,invalid-email
+David Wilson,32,abc,2023/03/10,engineering,david.wilson@company.com
+Emma Davis,twenty-five,45000,01/04/2023,Finance,emma@
+Frank Miller,45,NULL,2023/04/20,Engineering,frank..miller@company.com
+Grace Lee,null,75000,2023-05-30,HR,grace@company.org
+Henry Brown,-5,80000,invalid-date,Marketing,henry@company.com
+Iris Johnson,150,90000,2023/07/10,Unknown Dept,iris@company.com`;
 
   const tools = [
     { id: "llm-schema", name: "🧠 LLM Schema Generator", effectiveness: 85, description: "AI analyzes patterns and generates schemas" },
@@ -44,7 +49,10 @@ David,32,abc,2023/03/10`;
     
     // Simulate AI processing workflow
     const workflow: string[] = [];
-    setTimeout(() => workflow.push("🔍 Scanning dataset for anomalies..."), 300);
+    setTimeout(() => {
+      workflow.push("🔍 Scanning dataset for anomalies...");
+      setAiWorkflow([...workflow]);
+    }, 300);
     setTimeout(() => {
       workflow.push("🧠 AI analyzing data patterns...");
       setAiWorkflow([...workflow]);
@@ -70,67 +78,99 @@ David,32,abc,2023/03/10`;
 
       switch (selectedTool) {
         case "gpt-cleaner":
-          result = "🏆 CRITICAL HIT! GPT-4 Cleaner successfully identified and fixed all data issues!";
-          cleaned = `name,age,salary,join_date
-Alice,25,52000,2023-01-12
-Bob,27,55000,2023-02-15
-Charlie,29,57000,2023-01-15
-John Doe,34,60000,2023-03-05
-David,32,58000,2023-03-10`;
+          result = "🏆 CRITICAL HIT! GPT-4 Cleaner successfully identified and fixed all data issues using contextual AI!";
+          cleaned = `name,age,salary,join_date,department,email
+Alice Smith,28,52000,2023-01-12,Engineering,alice@company.com
+Bob Johnson,27,55000,2023-02-15,HR,bob@company.com
+Charlie Brown,29,57000,2023-01-15,Marketing,charlie@company.com
+John Doe,34,60000,2023-03-05,Sales,john.doe@company.com
+David Wilson,32,58000,2023-03-10,Engineering,david.wilson@company.com
+Emma Davis,25,45000,2023-04-01,Finance,emma@company.com
+Frank Miller,45,62000,2023-04-20,Engineering,frank.miller@company.com
+Grace Lee,30,75000,2023-05-30,HR,grace@company.com
+Henry Brown,35,80000,2023-06-15,Marketing,henry@company.com
+Iris Johnson,28,90000,2023-07-10,Sales,iris@company.com`;
           finalWorkflow.push("✅ GPT-4 inferred missing values using contextual understanding");
-          finalWorkflow.push("🎯 Fixed date formats and salary inconsistencies");
+          finalWorkflow.push("🎯 Fixed date formats, email validation, and department standardization");
+          finalWorkflow.push("🧠 Used natural language processing to correct text-based data");
           points = 100;
           break;
         
         case "llm-schema":
-          result = "⚡ EFFECTIVE STRIKE! LLM Schema Generator created robust validation rules!";
-          cleaned = `name,age,salary,join_date
-Alice,NULL,52000,2023-01-12
-Bob,27,NULL,2023-02-15
-Charlie,29,57000,2023-01-15
-MISSING_NAME,34,60000,2023-03-05
-David,32,INVALID_SALARY,2023-03-10`;
-          finalWorkflow.push("📋 Generated data schema with validation rules");
-          finalWorkflow.push("🏷️ Standardized NULL values and flagged issues");
+          result = "⚡ EFFECTIVE STRIKE! LLM Schema Generator created robust validation rules and standardized formats!";
+          cleaned = `name,age,salary,join_date,department,email
+Alice Smith,MISSING_AGE,52000,2023-01-12,Engineering,alice@company.com
+Bob Johnson,27,INVALID_SALARY,2023-02-15,HR,bob@company.com
+Charlie Brown,29,57000,INVALID_DATE,Marketing,INVALID_EMAIL
+MISSING_NAME,34,60000,2023-03-05,Sales,INVALID_EMAIL
+David Wilson,32,INVALID_SALARY,2023-03-10,Engineering,david.wilson@company.com
+Emma Davis,INVALID_AGE,45000,2023-04-01,Finance,INVALID_EMAIL
+Frank Miller,45,NULL,2023-04-20,Engineering,INVALID_EMAIL
+Grace Lee,NULL,75000,2023-05-30,HR,grace@company.com
+Henry Brown,INVALID_AGE,80000,INVALID_DATE,Marketing,henry@company.com
+Iris Johnson,AGE_OUTLIER,90000,2023-07-10,UNKNOWN_DEPT,iris@company.com`;
+          finalWorkflow.push("📋 Generated comprehensive data schema with validation rules");
+          finalWorkflow.push("🏷️ Standardized NULL values and flagged constraint violations");
+          finalWorkflow.push("📊 Applied data type validation and business rule checks");
           points = 80;
           break;
         
         case "anomaly-detector":
-          result = "🎯 GOOD HIT! Anomaly Detector flagged suspicious patterns for review!";
-          cleaned = `name,age,salary,join_date
-Alice,[ANOMALY:MISSING_AGE],52000,2023-01-12
-Bob,27,[ANOMALY:NA_SALARY],2023-02-15
-Charlie,29,57000,[ANOMALY:INVALID_DATE]
-[ANOMALY:MISSING_NAME],34,60000,2023-03-05
-David,32,[ANOMALY:TEXT_IN_SALARY],2023-03-10`;
-          finalWorkflow.push("🚨 ML models detected 5 data anomalies");
-          finalWorkflow.push("📊 Statistical analysis flagged outliers");
+          result = "🎯 GOOD HIT! Anomaly Detector used statistical ML to flag suspicious patterns!";
+          cleaned = `name,age,salary,join_date,department,email
+Alice Smith,[ANOMALY:MISSING_AGE],52000,2023-01-12,Engineering,alice@company.com
+Bob Johnson,27,[ANOMALY:NA_SALARY],2023-02-15,HR,bob@company.com
+Charlie Brown,29,57000,[ANOMALY:INVALID_DATE_FORMAT],Marketing,[ANOMALY:UPPERCASE_EMAIL]
+[ANOMALY:MISSING_NAME],34,60000,2023-03-05,Sales,[ANOMALY:INVALID_EMAIL_FORMAT]
+David Wilson,32,[ANOMALY:TEXT_IN_NUMERIC],2023-03-10,Engineering,david.wilson@company.com
+Emma Davis,[ANOMALY:TEXT_AGE],45000,2023-04-01,Finance,[ANOMALY:INCOMPLETE_EMAIL]
+Frank Miller,45,[ANOMALY:NULL_VALUE],2023-04-20,Engineering,[ANOMALY:DOUBLE_DOT_EMAIL]
+Grace Lee,[ANOMALY:NULL_VALUE],75000,2023-05-30,HR,grace@company.com
+Henry Brown,[ANOMALY:NEGATIVE_AGE],80000,[ANOMALY:INVALID_DATE],Marketing,henry@company.com
+Iris Johnson,[ANOMALY:AGE_OUTLIER],90000,2023-07-10,[ANOMALY:UNKNOWN_DEPARTMENT],iris@company.com`;
+          finalWorkflow.push("🚨 ML models detected 15+ data anomalies using statistical analysis");
+          finalWorkflow.push("📊 Applied z-score and isolation forest algorithms");
+          finalWorkflow.push("🔍 Flagged outliers, format inconsistencies, and missing values");
           points = 60;
           break;
         
         case "regex-warrior":
-          result = "💥 MINOR DAMAGE! Regex patterns fixed some formatting issues!";
-          cleaned = `name,age,salary,join_date
-Alice,,52000,2023-01-12
-Bob,27,NA,2023-02-15
-Charlie,29,57000,2023-01-15
-,34,60000,2023-03-05
-David,32,abc,2023-03-10`;
-          finalWorkflow.push("🔧 Applied regex patterns for date standardization");
-          finalWorkflow.push("⚠️ Limited success - complex issues require AI");
+          result = "💥 PARTIAL SUCCESS! Regex Warrior applied pattern matching with limited scope!";
+          cleaned = `name,age,salary,join_date,department,email
+Alice Smith,,52000,2023-01-12,Engineering,alice@company.com
+Bob Johnson,27,NA,2023-02-15,HR,bob@company.com
+Charlie Brown,29,57000,2023-01-15,Marketing,charlie@company.com
+,34,60000,2023-03-05,Sales,invalid-email
+David Wilson,32,abc,2023-03-10,Engineering,david.wilson@company.com
+Emma Davis,twenty-five,45000,2023-04-01,Finance,emma@company.com
+Frank Miller,45,NULL,2023-04-20,Engineering,frank.miller@company.com
+Grace Lee,null,75000,2023-05-30,HR,grace@company.com
+Henry Brown,-5,80000,invalid-date,Marketing,henry@company.com
+Iris Johnson,150,90000,2023-07-10,Unknown Dept,iris@company.com`;
+          finalWorkflow.push("🔧 Applied regex pattern: /\\d{4}[-/]\\d{2}[-/]\\d{2}/ for date standardization");
+          finalWorkflow.push("📧 Used pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/ for email validation");
+          finalWorkflow.push("🏢 Applied pattern: /^[A-Z][a-z]+$/ for department name standardization");
+          finalWorkflow.push("⚠️ Limited success - regex cannot handle semantic data issues");
           points = 30;
           break;
         
         default:
-          result = "🤖 COMBO ATTACK! Column Combiner merged related fields!";
-          cleaned = `name,age,salary,join_date
-Alice_MERGED,,52000,2023-01-12
-Bob_MERGED,27,NA_FIXED,2023-02-15
-Charlie_MERGED,29,57000,2023-01-15
-UNKNOWN_MERGED,34,60000,2023-03-05
-David_MERGED,32,abc_FLAGGED,2023-03-10`;
-          finalWorkflow.push("🔗 AI combined name fields with status indicators");
-          finalWorkflow.push("🛡️ Added data quality flags");
+          result = "🤖 COMBO ATTACK! Column Combiner merged and standardized related fields using AI!";
+          cleaned = `full_profile,contact_info,employment_details
+Alice Smith_AGE_MISSING_DEPT_Engineering,alice@company.com_VERIFIED,52000_2023-01-12_VALID
+Bob Johnson_27_DEPT_HR,bob@company.com_VERIFIED,SALARY_NA_2023-02-15_PARTIAL
+Charlie Brown_29_DEPT_Marketing,charlie@company.com_CASE_ISSUE,57000_DATE_INVALID_FLAGGED
+MISSING_NAME_34_DEPT_Sales,INVALID_EMAIL_FLAGGED,60000_2023-03-05_VALID
+David Wilson_32_DEPT_Engineering,david.wilson@company.com_VERIFIED,SALARY_TEXT_2023-03-10_FLAGGED
+Emma Davis_AGE_TEXT_DEPT_Finance,emma@company.com_INCOMPLETE,45000_2023-04-01_VALID
+Frank Miller_45_DEPT_Engineering,frank.miller@company.com_DOUBLE_DOT,NULL_SALARY_2023-04-20_PARTIAL
+Grace Lee_NULL_AGE_DEPT_HR,grace@company.com_VERIFIED,75000_2023-05-30_VALID
+Henry Brown_NEGATIVE_AGE_DEPT_Marketing,henry@company.com_VERIFIED,80000_DATE_INVALID_FLAGGED
+Iris Johnson_AGE_OUTLIER_DEPT_UNKNOWN,iris@company.com_VERIFIED,90000_2023-07-10_PARTIAL`;
+          finalWorkflow.push("🔗 AI combined personal info (name + age + department) into full_profile");
+          finalWorkflow.push("📧 Merged email with validation status into contact_info");
+          finalWorkflow.push("💼 Combined salary + date + validation into employment_details");
+          finalWorkflow.push("🛡️ Added comprehensive data quality flags for each field");
           points = 50;
       }
 
