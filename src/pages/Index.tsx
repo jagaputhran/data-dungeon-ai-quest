@@ -25,7 +25,7 @@ const Index = () => {
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-4 flex items-center justify-center gap-4">
             <Sword className="text-yellow-400" size={48} />
-            Data Dungeon: Clean or Corrupt?
+            Agent JAGA: The Data Clean-Up Commando
             <Database className="text-cyan-400" size={48} />
           </h1>
           <p className="text-xl text-gray-200 max-w-4xl mx-auto leading-relaxed">
