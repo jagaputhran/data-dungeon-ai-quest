@@ -7,7 +7,8 @@ import BattleMode from "@/components/BattleMode";
 import JsonBattleMode from "@/components/JsonBattleMode";
 import Scoreboard from "@/components/Scoreboard";
 import LearningResources from "@/components/LearningResources";
-import { Sword, Brain, Database, FileJson } from "lucide-react";
+import EtlGameMode from "@/components/EtlGameMode";
+import { Sword, Brain, Database, FileJson, Workflow } from "lucide-react";
 
 const Index = () => {
   const [totalScore, setTotalScore] = useState(0);
@@ -49,13 +50,17 @@ const Index = () => {
         <Card className="bg-black/20 backdrop-blur-sm border-gray-600">
           <CardContent className="p-6">
             <Tabs defaultValue="battle" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsList className="grid w-full grid-cols-5 mb-6">
                 <TabsTrigger value="battle" className="text-lg">
                   🎮 CSV Battle
                 </TabsTrigger>
                 <TabsTrigger value="json-battle" className="text-lg">
                   <FileJson className="mr-1" size={16} />
                   JSON Battle
+                </TabsTrigger>
+                <TabsTrigger value="etl-game" className="text-lg">
+                  <Workflow className="mr-1" size={16} />
+                  ETL Ops
                 </TabsTrigger>
                 <TabsTrigger value="scoreboard" className="text-lg">
                   🏆 Scoreboard
@@ -71,6 +76,10 @@ const Index = () => {
 
               <TabsContent value="json-battle">
                 <JsonBattleMode onScoreUpdate={updateScore} />
+              </TabsContent>
+
+              <TabsContent value="etl-game">
+                <EtlGameMode onScoreUpdate={updateScore} />
               </TabsContent>
 
               <TabsContent value="scoreboard">
