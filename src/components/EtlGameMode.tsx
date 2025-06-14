@@ -31,15 +31,31 @@ import {
   Clock,
   BarChart3,
   Upload,
-  Download
+  Download,
+  ArrowLeft,
+  Check,
+  X
 } from "lucide-react";
 
 interface EtlGameModeProps {
   onScoreUpdate: (points: number) => void;
 }
 
+interface LevelChallenge {
+  type: string;
+  question: string;
+  options?: string[];
+  correctAnswer: string | number;
+  explanation: string;
+  dataPreview?: string;
+}
+
 const EtlGameMode = ({ onScoreUpdate }: EtlGameModeProps) => {
   const [currentLevel, setCurrentLevel] = useState<string | null>(null);
+  const [currentChallenge, setCurrentChallenge] = useState<LevelChallenge | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+  const [showResult, setShowResult] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
   const [gameProgress, setGameProgress] = useState(0);
   const [naturalLanguagePrompt, setNaturalLanguagePrompt] = useState("");
   const [generatedPipeline, setGeneratedPipeline] = useState("");
@@ -268,27 +284,204 @@ SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
     }
   };
 
+  const generateDataDrivenChallenge = (stageKey: string, levelId: string): LevelChallenge | null => {
+    const currentData = getCurrentData();
+    if (!currentData) {
+      toast({
+        title: "No Data Available",
+        description: "Please upload data or select a sample dataset first to play data-driven levels!",
+        variant: "destructive"
+      });
+      return null;
+    }
+
+    const lines = currentData.trim().split('\n');
+    const headers = lines[0].split(',');
+    const dataRows = lines.slice(1);
+
+    // Generate different challenges based on stage and level
+    switch (`${stageKey}-${levelId}`) {
+      case 'extract-schema-detection':
+        return {
+          type: 'multiple-choice',
+          question: `Looking at the ${dataFileName} dataset, how many columns does it have?`,
+          options: [
+            `${headers.length - 1} columns`,
+            `${headers.length} columns`,
+            `${headers.length + 1} columns`,
+            `${headers.length + 2} columns`
+          ],
+          correctAnswer: 1,
+          explanation: `The dataset has ${headers.length} columns: ${headers.join(', ')}`,
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'extract-source-discovery':
+        const emptyFields = dataRows.reduce((count, row) => {
+          return count + row.split(',').filter(cell => !cell.trim()).length;
+        }, 0);
+        return {
+          type: 'multiple-choice',
+          question: `How many empty/missing values are there in this dataset?`,
+          options: [
+            `${emptyFields - 2} missing values`,
+            `${emptyFields} missing values`,
+            `${emptyFields + 1} missing values`,
+            `${emptyFields + 3} missing values`
+          ],
+          correctAnswer: 1,
+          explanation: `There are ${emptyFields} missing values in the dataset. This is important for data quality assessment.`,
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'transform-column-normalization':
+        // Find inconsistent date formats
+        const dateColumn = headers.find(h => h.toLowerCase().includes('date'));
+        if (dateColumn) {
+          return {
+            type: 'multiple-choice',
+            question: `The ${dateColumn} column has inconsistent formats. Which transformation should be applied?`,
+            options: [
+              'Convert all dates to YYYY-MM-DD format',
+              'Leave dates as they are',
+              'Remove the date column',
+              'Convert to timestamp format'
+            ],
+            correctAnswer: 0,
+            explanation: 'Standardizing date formats to YYYY-MM-DD ensures consistency and prevents errors in downstream processing.',
+            dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+          };
+        }
+        break;
+
+      case 'transform-null-imputation':
+        const nullFields = headers.filter(header => {
+          return dataRows.some(row => {
+            const values = row.split(',');
+            const index = headers.indexOf(header);
+            return !values[index]?.trim();
+          });
+        });
+        
+        if (nullFields.length > 0) {
+          return {
+            type: 'multiple-choice',
+            question: `The column "${nullFields[0]}" has missing values. What's the best imputation strategy?`,
+            options: [
+              'Fill with zeros',
+              'Remove rows with missing values',
+              'Fill with mean/mode based on data type',
+              'Leave as is'
+            ],
+            correctAnswer: 2,
+            explanation: 'Using mean for numerical data and mode for categorical data is a standard approach that preserves data distribution.',
+            dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+          };
+        }
+        break;
+
+      case 'load-schema-optimization':
+        return {
+          type: 'multiple-choice',
+          question: `Which column should be the primary key for this dataset?`,
+          options: headers.slice(0, 4),
+          correctAnswer: 0,
+          explanation: `The first column "${headers[0]}" typically serves as a unique identifier and should be the primary key.`,
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'qa-test-generation':
+        const totalRecords = dataRows.length;
+        return {
+          type: 'multiple-choice',
+          question: `What quality check should be performed first on this dataset?`,
+          options: [
+            'Check for duplicate records',
+            'Validate data types',
+            'Check for missing values',
+            'All of the above'
+          ],
+          correctAnswer: 3,
+          explanation: 'Comprehensive data quality checks should include duplicates, data types, and missing values validation.',
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      default:
+        return {
+          type: 'multiple-choice',
+          question: `How many records are in the ${dataFileName} dataset?`,
+          options: [
+            `${dataRows.length - 1} records`,
+            `${dataRows.length} records`,
+            `${dataRows.length + 1} records`,
+            `${dataRows.length + 2} records`
+          ],
+          correctAnswer: 1,
+          explanation: `The dataset contains ${dataRows.length} data records (excluding the header row).`,
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+    }
+
+    return null;
+  };
+
   const playLevel = (stageKey: string, levelId: string) => {
     const stage = etlStages[stageKey as keyof typeof etlStages];
     const level = stage.levels.find(l => l.id === levelId);
     
     if (level) {
-      setCurrentLevel(`${stageKey}-${levelId}`);
+      const challenge = generateDataDrivenChallenge(stageKey, levelId);
       
-      // Simulate playing the level
-      setTimeout(() => {
-        const points = level.points;
-        onScoreUpdate(points);
-        setGameProgress(prev => Math.min(prev + 10, 100));
-        
-        toast({
-          title: "🎉 Level Complete!",
-          description: `You earned ${points} XP for completing ${level.name}!`,
-        });
-        
-        setCurrentLevel(null);
-      }, 2000);
+      if (!challenge) {
+        return; // Error already shown in generateDataDrivenChallenge
+      }
+
+      setCurrentLevel(`${stageKey}-${levelId}`);
+      setCurrentChallenge(challenge);
+      setSelectedAnswer("");
+      setShowResult(false);
+      setIsCorrect(false);
     }
+  };
+
+  const submitAnswer = () => {
+    if (!currentChallenge || !selectedAnswer) {
+      toast({
+        title: "No Answer Selected",
+        description: "Please select an answer before submitting.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const isAnswerCorrect = selectedAnswer === currentChallenge.correctAnswer.toString();
+    setIsCorrect(isAnswerCorrect);
+    setShowResult(true);
+
+    if (isAnswerCorrect) {
+      const points = 150; // Points for data-driven challenges
+      onScoreUpdate(points);
+      setGameProgress(prev => Math.min(prev + 10, 100));
+      
+      toast({
+        title: "🎉 Correct!",
+        description: `You earned ${points} XP! Great job understanding the data!`,
+      });
+    } else {
+      toast({
+        title: "❌ Incorrect",
+        description: "Don't worry! Learn from the explanation and try another level.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const goBackToLevels = () => {
+    setCurrentLevel(null);
+    setCurrentChallenge(null);
+    setSelectedAnswer("");
+    setShowResult(false);
+    setIsCorrect(false);
   };
 
   const generatePipeline = () => {
@@ -477,6 +670,107 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
     }
   };
 
+  if (currentLevel && currentChallenge) {
+    return (
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-r from-green-900/50 to-teal-900/50 border-green-400">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-white text-2xl flex items-center gap-2">
+                <Target className="w-6 h-6" />
+                Data Challenge: {dataFileName}
+              </CardTitle>
+              <Button onClick={goBackToLevels} variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Levels
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Data Preview */}
+            {currentChallenge.dataPreview && (
+              <div>
+                <h4 className="text-white font-bold mb-2">📊 Data Preview:</h4>
+                <pre className="bg-gray-900 border border-gray-600 rounded-lg p-4 text-green-400 text-sm overflow-x-auto">
+                  {currentChallenge.dataPreview}
+                </pre>
+              </div>
+            )}
+
+            {/* Question */}
+            <div className="space-y-4">
+              <h3 className="text-white text-xl font-bold">{currentChallenge.question}</h3>
+              
+              {/* Multiple Choice Options */}
+              {currentChallenge.options && (
+                <div className="space-y-3">
+                  {currentChallenge.options.map((option, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => setSelectedAnswer(index.toString())}
+                      variant={selectedAnswer === index.toString() ? "default" : "outline"}
+                      className={`w-full justify-start text-left p-4 h-auto ${
+                        selectedAnswer === index.toString() 
+                          ? "bg-blue-600 text-white" 
+                          : "border-gray-600 text-gray-300 hover:bg-gray-700"
+                      }`}
+                      disabled={showResult}
+                    >
+                      <span className="font-bold mr-3">{String.fromCharCode(65 + index)}.</span>
+                      {option}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {/* Submit Button */}
+              {!showResult && (
+                <Button 
+                  onClick={submitAnswer}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  size="lg"
+                  disabled={!selectedAnswer}
+                >
+                  <Check className="w-5 h-5 mr-2" />
+                  Submit Answer
+                </Button>
+              )}
+
+              {/* Result */}
+              {showResult && (
+                <div className={`p-4 rounded-lg border ${
+                  isCorrect 
+                    ? "bg-green-900/20 border-green-400" 
+                    : "bg-red-900/20 border-red-400"
+                }`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    {isCorrect ? (
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                    ) : (
+                      <X className="w-5 h-5 text-red-400" />
+                    )}
+                    <span className={`font-bold ${isCorrect ? "text-green-400" : "text-red-400"}`}>
+                      {isCorrect ? "Correct!" : "Incorrect"}
+                    </span>
+                  </div>
+                  <p className="text-gray-300">{currentChallenge.explanation}</p>
+                  
+                  <Button 
+                    onClick={goBackToLevels}
+                    className="mt-4 w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Continue Learning
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (currentLevel) {
     return (
       <div className="space-y-6">
@@ -528,6 +822,9 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
           </CardTitle>
           <p className="text-gray-200">
             Upload your own CSV data or use our sample datasets to practice ETL operations!
+            <Badge className="ml-2 bg-yellow-600">
+              ⚡ Required for interactive challenges
+            </Badge>
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -631,11 +928,21 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
                   <p className="text-gray-300 text-sm mb-3">{level.description}</p>
                   <Button 
                     onClick={() => playLevel(stageKey, level.id)}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className={`w-full ${
+                      getCurrentData() 
+                        ? "bg-blue-600 hover:bg-blue-700" 
+                        : "bg-gray-600 hover:bg-gray-700"
+                    }`}
+                    disabled={!getCurrentData()}
                   >
                     <Play className="w-4 h-4 mr-2" />
-                    Play Level
+                    {getCurrentData() ? "Play Level" : "Load Data First"}
                   </Button>
+                  {!getCurrentData() && (
+                    <p className="text-yellow-400 text-xs mt-2">
+                      ⚠️ Upload data or select a sample dataset to play
+                    </p>
+                  )}
                 </div>
               ))}
             </CardContent>
