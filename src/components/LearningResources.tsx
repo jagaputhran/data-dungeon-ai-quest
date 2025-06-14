@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -171,20 +172,20 @@ def generate_dbt_models_with_ai(business_logic):
     """AI writes dbt transformation models"""
     
     dbt_template = """
-    {{{{ config(materialized='incremental') }}}}
+    {{ config(materialized='incremental') }}
     
     -- AI-generated model based on: {business_logic}
     
     SELECT 
         -- AI determines optimal column selection
         {ai_generated_columns}
-    FROM {{{{ ref('source_table') }}}}
-    WHERE {{{{ ai_generated_conditions }}}}
+    FROM {{ ref('source_table') }}
+    WHERE {{ ai_generated_conditions }}
     
-    {%% if is_incremental() %%}
+    {% if is_incremental() %}
         -- AI adds intelligent incremental logic
-        AND updated_at > (SELECT MAX(updated_at) FROM {{{{ this }}}})
-    {%% endif %%}
+        AND updated_at > (SELECT MAX(updated_at) FROM {{ this }})
+    {% endif %}
     """
     
     # AI fills in the template based on requirements
@@ -329,7 +330,6 @@ monitor.ai_stream_processor()`
     <div className="space-y-8">
       {/* Hero Section with Enhanced Graphics */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-green-900/40 via-blue-900/40 to-purple-900/40 border-2 border-green-500/50 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2310B981" fill-opacity="0.1"%3E%3Cpath d="M50 50L0 0h100v100z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-3xl">
             <div className="p-3 bg-green-500/20 rounded-xl backdrop-blur-sm">
@@ -378,7 +378,6 @@ monitor.ai_stream_processor()`
       {/* Enhanced ETL Concepts */}
       {etlConcepts.map((concept, index) => (
         <Card key={index} className="relative overflow-hidden bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-2 border-purple-500/50 shadow-xl">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%238B5CF6" fill-opacity="0.08"%3E%3Cpath d="M30 30L0 0h60v60z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
           <CardHeader className="relative">
             <CardTitle className="text-white flex items-center gap-3 text-2xl">
               <div className="p-2 bg-purple-500/20 rounded-lg backdrop-blur-sm">
@@ -402,7 +401,6 @@ monitor.ai_stream_processor()`
       {/* Enhanced Real-world Tools */}
       {realWorldTools.map((category, categoryIndex) => (
         <Card key={categoryIndex} className={`relative overflow-hidden bg-gradient-to-br ${category.gradient} border-2 ${category.borderColor} shadow-xl`}>
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23FFFFFF" fill-opacity="0.05"%3E%3Cpolygon points="20 0 40 20 20 40 0 20"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
           <CardHeader className="relative">
             <CardTitle className="text-white flex items-center gap-3 text-2xl">
               <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -439,7 +437,6 @@ monitor.ai_stream_processor()`
 
       {/* Enhanced Code Examples */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 border-2 border-gray-600/50 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23F97316" fill-opacity="0.1"%3E%3Crect width="2" height="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-2xl">
             <div className="p-2 bg-orange-500/20 rounded-lg backdrop-blur-sm">
@@ -486,7 +483,6 @@ monitor.ai_stream_processor()`
 
       {/* Enhanced Career Guide */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-pink-900/40 border-2 border-blue-500/50 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%234F46E5" fill-opacity="0.1"%3E%3Cpath d="M0 0h80v80H0z" transform="rotate(45 40 40)"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-3xl">
             <div className="p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl backdrop-blur-sm">

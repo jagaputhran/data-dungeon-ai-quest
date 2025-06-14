@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Brain, Target, Zap, Star, Award, Medal } from "lucide-react";
+import { Trophy, BookOpen, Database, Zap, Star, Award, Medal } from "lucide-react";
 
 interface ScoreboardProps {
   totalScore: number;
@@ -24,11 +24,10 @@ const Scoreboard = ({ totalScore, battlesWon }: ScoreboardProps) => {
     <div className="space-y-6">
       {/* Main Stats Card with Animated Background */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-indigo-900/40 border-2 border-purple-500/50 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-2xl">
             <div className="p-2 bg-purple-500/20 rounded-lg backdrop-blur-sm">
-              <Brain className="text-purple-400" size={32} />
+              <BookOpen className="text-purple-400" size={32} />
             </div>
             Knowledge Command Center
           </CardTitle>
@@ -85,7 +84,7 @@ const Scoreboard = ({ totalScore, battlesWon }: ScoreboardProps) => {
           <div className="space-y-3">
             <div className="flex justify-between text-white">
               <span className="flex items-center gap-2">
-                <Target className="text-blue-400" size={20} />
+                <Database className="text-blue-400" size={20} />
                 Progress to Level {level + 1}
               </span>
               <span className="font-mono bg-black/30 px-2 py-1 rounded text-cyan-400">
@@ -102,7 +101,6 @@ const Scoreboard = ({ totalScore, battlesWon }: ScoreboardProps) => {
 
       {/* Enhanced Achievements Card */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-900/30 via-orange-900/30 to-amber-900/30 border-2 border-yellow-500/50 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23FBBF24" fill-opacity="0.05"%3E%3Cpath d="M40 40L0 0h80v80z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-2xl">
             <div className="p-2 bg-yellow-500/20 rounded-lg backdrop-blur-sm">
@@ -152,11 +150,10 @@ const Scoreboard = ({ totalScore, battlesWon }: ScoreboardProps) => {
 
       {/* Enhanced Learning Objectives */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-blue-900/30 via-indigo-900/30 to-purple-900/30 border-2 border-blue-500/50 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%234F46E5" fill-opacity="0.08"%3E%3Cpolygon points="20 0 40 20 20 40 0 20"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-2xl">
             <div className="p-2 bg-blue-500/20 rounded-lg backdrop-blur-sm">
-              <Target className="text-blue-400" size={32} />
+              <Database className="text-blue-400" size={32} />
             </div>
             Learning Milestones
           </CardTitle>
