@@ -16,7 +16,359 @@ const CodeEditor = ({ mission, onCodeGenerated }: CodeEditorProps) => {
   const [isFixing, setIsFixing] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<Record<string, string> | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [lastValidationErrors, setLastValidationErrors] = useState<string[]>([]);
+
+  // Advanced DevOps configurations for different mission types
+  const generateCanaryDeployment = () => {
+    return `apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: webapp-rollout
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {}
+      - setWeight: 40
+      - pause: {duration: 10}
+      - setWeight: 60
+      - pause: {duration: 10}
+      - setWeight: 80
+      - pause: {duration: 10}
+      canaryService: webapp-canary
+      stableService: webapp-stable
+      trafficRouting:
+        nginx:
+          stableIngress: webapp-stable
+          annotationPrefix: nginx.ingress.kubernetes.io
+          additionalIngressAnnotations:
+            canary-by-header: X-Canary
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: webapp:v2.0.0
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-stable
+spec:
+  selector:
+    app: webapp
+  ports:
+  - port: 80
+    targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-canary
+spec:
+  selector:
+    app: webapp
+  ports:
+  - port: 80
+    targetPort: 3000`;
+  };
+
+  const generateSecurityPipeline = () => {
+    return `name: Security-First CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Run SAST with CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+    
+    - name: Run dependency check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'webapp'
+        path: '.'
+        format: 'HTML'
+    
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.7.0
+      with:
+        target: 'https://staging.example.com'
+
+  build-secure:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build with security context
+      run: |
+        docker build --security-opt no-new-privileges:true \\
+          --cap-drop ALL --cap-add NET_BIND_SERVICE \\
+          -t webapp:secure .
+    
+    - name: Sign container image
+      uses: sigstore/cosign-installer@v3
+      with:
+        cosign-release: 'v2.0.0'
+    
+    - name: Sign the published Docker image
+      env:
+        COSIGN_EXPERIMENTAL: 1
+      run: cosign sign webapp:secure`;
+  };
+
+  const generatePrometheusConfig = () => {
+    return `global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  - job_name: 'webapp'
+    static_configs:
+      - targets: ['webapp:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+        
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        
+  - job_name: 'kube-state-metrics'
+    static_configs:
+      - targets: ['kube-state-metrics:8080']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    metrics_path: '/metrics'
+    
+# Custom metrics for application performance
+  - job_name: 'webapp-custom-metrics'
+    static_configs:
+      - targets: ['webapp:3001']
+    metrics_path: '/custom-metrics'
+    scrape_interval: 5s`;
+  };
+
+  const generateGrafanaDashboard = () => {
+    return `{
+  "dashboard": {
+    "id": null,
+    "title": "DevOps Application Dashboard",
+    "tags": ["devops", "kubernetes", "application"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Application Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Response Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "Requests per second"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
+            "legendFormat": "5xx errors"
+          }
+        ],
+        "thresholds": "0.01,0.05",
+        "colorBackground": true,
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Pod Restarts",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_status_restarts_total)",
+            "legendFormat": "Total Restarts"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{container!=\"POD\",container!=\"\"}/1024/1024",
+            "legendFormat": "{{container}} Memory (MB)"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}`;
+  };
+
+  const generateGitOpsConfig = () => {
+    return `apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webapp-production
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/company/webapp-k8s-config
+    targetRevision: HEAD
+    path: production
+    helm:
+      valueFiles:
+      - values-production.yaml
+      parameters:
+      - name: image.tag
+        value: "v1.2.3"
+      - name: replicaCount
+        value: "3"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: webapp-production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webapp-config
+  namespace: webapp-production
+data:
+  environment: "production"
+  debug: "false"
+  database_url: "postgresql://webapp:password@postgres:5432/webapp_prod"
+  redis_url: "redis://redis:6379/0"
+  log_level: "info"
+  metrics_enabled: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: webapp-secrets
+  namespace: webapp-production
+type: Opaque
+stringData:
+  jwt_secret: "your-super-secret-jwt-key"
+  database_password: "secure-db-password"
+  api_key: "external-api-key"`;
+  };
 
   const generateSecureDockerfile = (appType: string) => {
     return `# Multi-stage build for security and efficiency
@@ -241,19 +593,42 @@ jobs:
     setTimeout(() => {
       const code: Record<string, string> = {};
       
-      // Generate basic code first (with potential issues for demo)
-      if (mission.codeTemplates.dockerfile) {
-        code.dockerfile = mission.codeTemplates.dockerfile;
-      }
-      if (mission.codeTemplates.kubernetes) {
-        code.kubernetes = mission.codeTemplates.kubernetes;
-      }
-      if (mission.codeTemplates.terraform) {
-        code.terraform = mission.codeTemplates.terraform;
-      }
-      if (mission.codeTemplates.githubActions) {
-        code.githubActions = mission.codeTemplates.githubActions;
-      }
+      // Generate code based on mission's codeTemplates
+      Object.keys(mission.codeTemplates).forEach(templateKey => {
+        const template = mission.codeTemplates[templateKey];
+        
+        switch (templateKey) {
+          case 'dockerfile':
+            code.dockerfile = template; // Use basic template first
+            break;
+          case 'kubernetes':
+            code.kubernetes = template;
+            break;
+          case 'terraform':
+            code.terraform = template;
+            break;
+          case 'githubActions':
+            code.githubActions = template;
+            break;
+          case 'canary':
+            code.canary = generateCanaryDeployment();
+            break;
+          case 'security':
+            code.security = generateSecurityPipeline();
+            break;
+          case 'prometheus':
+            code.prometheus = generatePrometheusConfig();
+            break;
+          case 'grafana':
+            code.grafana = generateGrafanaDashboard();
+            break;
+          case 'gitops':
+            code.gitops = generateGitOpsConfig();
+            break;
+          default:
+            code[templateKey] = template;
+        }
+      });
       
       setGeneratedCode(code);
       onCodeGenerated(code);
@@ -269,24 +644,44 @@ jobs:
     setTimeout(() => {
       const fixedCode: Record<string, string> = {};
       
-      // Apply AI-powered fixes
-      if (generatedCode.dockerfile) {
-        fixedCode.dockerfile = generateSecureDockerfile("webapp");
-      }
-      if (generatedCode.kubernetes) {
-        fixedCode.kubernetes = generateSecureKubernetes("webapp");
-      }
-      if (generatedCode.terraform) {
-        fixedCode.terraform = generateSecureTerraform();
-      }
-      if (generatedCode.githubActions) {
-        fixedCode.githubActions = generateSecureGithubActions();
-      }
+      // Apply AI-powered fixes for each code type
+      Object.keys(generatedCode).forEach(codeType => {
+        switch (codeType) {
+          case 'dockerfile':
+            fixedCode.dockerfile = generateSecureDockerfile("webapp");
+            break;
+          case 'kubernetes':
+            fixedCode.kubernetes = generateSecureKubernetes("webapp");
+            break;
+          case 'terraform':
+            fixedCode.terraform = generateSecureTerraform();
+            break;
+          case 'githubActions':
+            fixedCode.githubActions = generateSecureGithubActions();
+            break;
+          case 'canary':
+            fixedCode.canary = generateCanaryDeployment();
+            break;
+          case 'security':
+            fixedCode.security = generateSecurityPipeline();
+            break;
+          case 'prometheus':
+            fixedCode.prometheus = generatePrometheusConfig();
+            break;
+          case 'grafana':
+            fixedCode.grafana = generateGrafanaDashboard();
+            break;
+          case 'gitops':
+            fixedCode.gitops = generateGitOpsConfig();
+            break;
+          default:
+            fixedCode[codeType] = generatedCode[codeType];
+        }
+      });
       
       setGeneratedCode(fixedCode);
       onCodeGenerated(fixedCode);
       setIsFixing(false);
-      setLastValidationErrors([]);
     }, 2000);
   };
 
