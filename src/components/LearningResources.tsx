@@ -1,49 +1,56 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, BookOpen, Code, Cpu, Database, Workflow, GitBranch, Monitor } from "lucide-react";
+import { ExternalLink, BookOpen, Code, Cpu, Database, Workflow, GitBranch, Monitor, Zap, Star, Trophy, Award } from "lucide-react";
 
 const LearningResources = () => {
   const realWorldTools = [
     {
       category: "AI-Powered ETL & Pipelines",
       icon: <Workflow className="text-blue-400" />,
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      borderColor: "border-blue-500/30",
       tools: [
-        { name: "Apache Airflow + LLMs", url: "https://airflow.apache.org/", description: "AI orchestrates complex data workflows with self-healing capabilities" },
-        { name: "dbt + GPT Code Generation", url: "https://www.getdbt.com/", description: "Auto-generate SQL transformations using natural language" },
-        { name: "Fivetran AI Connectors", url: "https://fivetran.com/", description: "Intelligent data connectors that adapt to schema changes" },
-        { name: "Prefect AI Agents", url: "https://www.prefect.io/", description: "AI agents monitor and auto-fix pipeline failures" }
+        { name: "Apache Airflow + LLMs", url: "https://airflow.apache.org/", description: "AI orchestrates complex data workflows with self-healing capabilities", badge: "Popular" },
+        { name: "dbt + GPT Code Generation", url: "https://www.getdbt.com/", description: "Auto-generate SQL transformations using natural language", badge: "Trending" },
+        { name: "Fivetran AI Connectors", url: "https://fivetran.com/", description: "Intelligent data connectors that adapt to schema changes", badge: "Enterprise" },
+        { name: "Prefect AI Agents", url: "https://www.prefect.io/", description: "AI agents monitor and auto-fix pipeline failures", badge: "New" }
       ]
     },
     {
       category: "LLM-Powered Data Tools",
       icon: <Cpu className="text-purple-400" />,
+      gradient: "from-purple-500/20 to-pink-500/20",
+      borderColor: "border-purple-500/30",
       tools: [
-        { name: "LangChain for DataOps", url: "https://docs.langchain.com/", description: "Chain LLMs for complex data workflows and transformations" },
-        { name: "Pandas AI", url: "https://pandas-ai.readthedocs.io/", description: "Natural language data analysis and manipulation" },
-        { name: "ChatGPT Code Interpreter", url: "https://openai.com/api/", description: "AI writes and executes data processing code on demand" },
-        { name: "GitHub Copilot for Data", url: "https://github.com/features/copilot", description: "AI pair programming for data engineering tasks" }
+        { name: "LangChain for DataOps", url: "https://docs.langchain.com/", description: "Chain LLMs for complex data workflows and transformations", badge: "Hot" },
+        { name: "Pandas AI", url: "https://pandas-ai.readthedocs.io/", description: "Natural language data analysis and manipulation", badge: "Popular" },
+        { name: "ChatGPT Code Interpreter", url: "https://openai.com/api/", description: "AI writes and executes data processing code on demand", badge: "Featured" },
+        { name: "GitHub Copilot for Data", url: "https://github.com/features/copilot", description: "AI pair programming for data engineering tasks", badge: "Essential" }
       ]
     },
     {
       category: "AI Data Quality & Governance",
       icon: <Monitor className="text-green-400" />,
+      gradient: "from-green-500/20 to-emerald-500/20",
+      borderColor: "border-green-500/30",
       tools: [
-        { name: "Great Expectations AI", url: "https://greatexpectations.io/", description: "AI-generated data quality tests and expectations" },
-        { name: "Monte Carlo AI Observability", url: "https://www.montecarlodata.com/", description: "ML-powered data incident detection and root cause analysis" },
-        { name: "Datadog AI Monitoring", url: "https://www.datadoghq.com/", description: "Intelligent monitoring with anomaly detection for data pipelines" },
-        { name: "Collibra AI Governance", url: "https://www.collibra.com/", description: "AI automates data cataloging and compliance workflows" }
+        { name: "Great Expectations AI", url: "https://greatexpectations.io/", description: "AI-generated data quality tests and expectations", badge: "Reliable" },
+        { name: "Monte Carlo AI Observability", url: "https://www.montecarlodata.com/", description: "ML-powered data incident detection and root cause analysis", badge: "Advanced" },
+        { name: "Datadog AI Monitoring", url: "https://www.datadoghq.com/", description: "Intelligent monitoring with anomaly detection for data pipelines", badge: "Industry Standard" },
+        { name: "Collibra AI Governance", url: "https://www.collibra.com/", description: "AI automates data cataloging and compliance workflows", badge: "Enterprise" }
       ]
     },
     {
       category: "Schema & Metadata Automation",
       icon: <Database className="text-cyan-400" />,
+      gradient: "from-cyan-500/20 to-blue-500/20",
+      borderColor: "border-cyan-500/30",
       tools: [
-        { name: "Apache Atlas + ML", url: "https://atlas.apache.org/", description: "AI-powered metadata discovery and lineage tracking" },
-        { name: "DataHub AI Cataloging", url: "https://datahubproject.io/", description: "Intelligent data discovery and automated documentation" },
-        { name: "Amundsen AI Search", url: "https://www.amundsen.io/", description: "ML-enhanced data discovery and recommendation engine" },
-        { name: "Alation AI Assistant", url: "https://www.alation.com/", description: "AI chatbot for data catalog queries and insights" }
+        { name: "Apache Atlas + ML", url: "https://atlas.apache.org/", description: "AI-powered metadata discovery and lineage tracking", badge: "Open Source" },
+        { name: "DataHub AI Cataloging", url: "https://datahubproject.io/", description: "Intelligent data discovery and automated documentation", badge: "Community Favorite" },
+        { name: "Amundsen AI Search", url: "https://www.amundsen.io/", description: "ML-enhanced data discovery and recommendation engine", badge: "Innovative" },
+        { name: "Alation AI Assistant", url: "https://www.alation.com/", description: "AI chatbot for data catalog queries and insights", badge: "Smart" }
       ]
     }
   ];
@@ -52,6 +59,8 @@ const LearningResources = () => {
     {
       title: "AI-Powered ETL Pipeline Orchestration",
       language: "Python + Airflow",
+      icon: "🚀",
+      complexity: "Advanced",
       code: `from airflow import DAG
 from airflow.operators.python import PythonOperator
 import openai
@@ -127,6 +136,8 @@ extract_task >> transform_task >> quality_task`
     {
       title: "LLM-Powered Schema Evolution",
       language: "Python + dbt",
+      icon: "🧠",
+      complexity: "Intermediate",
       code: `import openai
 import yaml
 
@@ -194,6 +205,8 @@ dbt_models = generate_dbt_models_with_ai(new_requirements)`
     {
       title: "Real-time Data Pipeline with AI Monitoring",
       language: "Python + Kafka + ML",
+      icon: "⚡",
+      complexity: "Expert",
       code: `from kafka import KafkaConsumer, KafkaProducer
 import json
 from sklearn.ensemble import IsolationForest
@@ -313,50 +326,72 @@ monitor.ai_stream_processor()`
   ];
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-green-900/30 to-blue-900/30 border-green-500">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <BookOpen className="text-green-400" />
+    <div className="space-y-8">
+      {/* Hero Section with Enhanced Graphics */}
+      <Card className="relative overflow-hidden bg-gradient-to-br from-green-900/40 via-blue-900/40 to-purple-900/40 border-2 border-green-500/50 shadow-2xl">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2310B981" fill-opacity="0.1"%3E%3Cpath d="M50 50L0 0h100v100z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        <CardHeader className="relative">
+          <CardTitle className="text-white flex items-center gap-3 text-3xl">
+            <div className="p-3 bg-green-500/20 rounded-xl backdrop-blur-sm">
+              <BookOpen className="text-green-400" size={36} />
+            </div>
             AI is Revolutionizing the Entire Data Engineering Stack
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-200 leading-relaxed">
+        <CardContent className="space-y-6 relative">
+          <p className="text-gray-200 leading-relaxed text-lg">
             This game demonstrates how AI is transforming every aspect of data engineering - from ETL pipelines to real-time processing. Modern data teams use LLMs to generate code, ML to monitor quality, and AI agents to orchestrate complex workflows that traditionally required extensive manual coding and maintenance.
           </p>
           
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="bg-black/30 p-4 rounded-lg border border-red-500">
-              <h4 className="text-red-400 font-semibold mb-2">Legacy Approach</h4>
-              <p className="text-gray-300 text-sm">Manual ETL coding, static schemas, reactive monitoring, siloed tools</p>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="group transform hover:scale-105 transition-all duration-300">
+              <div className="bg-gradient-to-br from-red-900/40 to-orange-900/40 p-6 rounded-xl border-2 border-red-500/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <h4 className="text-red-400 font-bold text-lg">Legacy Approach</h4>
+                </div>
+                <p className="text-gray-300">Manual ETL coding, static schemas, reactive monitoring, siloed tools</p>
+              </div>
             </div>
-            <div className="bg-black/30 p-4 rounded-lg border border-blue-500">
-              <h4 className="text-blue-400 font-semibold mb-2">AI-Native Approach</h4>
-              <p className="text-gray-300 text-sm">Code generation, adaptive schemas, predictive monitoring, unified AI platform</p>
+            <div className="group transform hover:scale-105 transition-all duration-300">
+              <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-6 rounded-xl border-2 border-blue-500/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                  <h4 className="text-blue-400 font-bold text-lg">AI-Native Approach</h4>
+                </div>
+                <p className="text-gray-300">Code generation, adaptive schemas, predictive monitoring, unified AI platform</p>
+              </div>
             </div>
-            <div className="bg-black/30 p-4 rounded-lg border border-green-500">
-              <h4 className="text-green-400 font-semibold mb-2">Future Vision</h4>
-              <p className="text-gray-300 text-sm">Autonomous data operations, self-optimizing pipelines, natural language interfaces</p>
+            <div className="group transform hover:scale-105 transition-all duration-300">
+              <div className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 p-6 rounded-xl border-2 border-green-500/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <h4 className="text-green-400 font-bold text-lg">Future Vision</h4>
+                </div>
+                <p className="text-gray-300">Autonomous data operations, self-optimizing pipelines, natural language interfaces</p>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* ETL Concepts */}
+      {/* Enhanced ETL Concepts */}
       {etlConcepts.map((concept, index) => (
-        <Card key={index} className="bg-purple-900/20 border-purple-500">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <GitBranch className="text-purple-400" />
+        <Card key={index} className="relative overflow-hidden bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-2 border-purple-500/50 shadow-xl">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%238B5CF6" fill-opacity="0.08"%3E%3Cpath d="M30 30L0 0h60v60z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+          <CardHeader className="relative">
+            <CardTitle className="text-white flex items-center gap-3 text-2xl">
+              <div className="p-2 bg-purple-500/20 rounded-lg backdrop-blur-sm">
+                <GitBranch className="text-purple-400" size={28} />
+              </div>
               {concept.title}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+          <CardContent className="relative">
+            <div className="space-y-3">
               {concept.items.map((item, itemIndex) => (
-                <div key={itemIndex} className="text-gray-200 flex items-start gap-2">
-                  <span className="text-lg">{item}</span>
+                <div key={itemIndex} className="flex items-start gap-3 p-3 bg-black/20 rounded-lg border border-purple-500/20 backdrop-blur-sm hover:bg-black/30 transition-all duration-300">
+                  <span className="text-lg leading-relaxed">{item}</span>
                 </div>
               ))}
             </div>
@@ -364,27 +399,35 @@ monitor.ai_stream_processor()`
         </Card>
       ))}
 
-      {/* Real-world Tools */}
+      {/* Enhanced Real-world Tools */}
       {realWorldTools.map((category, categoryIndex) => (
-        <Card key={categoryIndex} className="bg-black/20 border-gray-600">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              {category.icon}
+        <Card key={categoryIndex} className={`relative overflow-hidden bg-gradient-to-br ${category.gradient} border-2 ${category.borderColor} shadow-xl`}>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23FFFFFF" fill-opacity="0.05"%3E%3Cpolygon points="20 0 40 20 20 40 0 20"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+          <CardHeader className="relative">
+            <CardTitle className="text-white flex items-center gap-3 text-2xl">
+              <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                {category.icon}
+              </div>
               {category.category}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="grid gap-4">
               {category.tools.map((tool, toolIndex) => (
-                <div key={toolIndex} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-gray-700">
-                  <div>
-                    <h4 className="text-cyan-400 font-semibold">{tool.name}</h4>
-                    <p className="text-gray-300 text-sm">{tool.description}</p>
+                <div key={toolIndex} className="group flex items-center justify-between p-4 bg-black/30 rounded-xl border border-gray-700/50 backdrop-blur-sm hover:bg-black/40 transition-all duration-300 transform hover:scale-[1.02]">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-cyan-400 font-bold text-lg">{tool.name}</h4>
+                      <Badge variant="outline" className="text-xs bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
+                        {tool.badge}
+                      </Badge>
+                    </div>
+                    <p className="text-gray-300">{tool.description}</p>
                   </div>
-                  <Button variant="outline" size="sm" asChild className="border-gray-600 text-white hover:bg-gray-800">
+                  <Button variant="outline" size="sm" asChild className="border-gray-600 text-white hover:bg-gray-800 ml-4 group-hover:scale-110 transition-transform duration-200">
                     <a href={tool.url} target="_blank" rel="noopener noreferrer">
                       <ExternalLink size={16} className="mr-1" />
-                      Learn
+                      Explore
                     </a>
                   </Button>
                 </div>
@@ -394,65 +437,130 @@ monitor.ai_stream_processor()`
         </Card>
       ))}
 
-      {/* ETL Code Examples */}
-      <Card className="bg-gray-900/30 border-gray-600">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Code className="text-orange-400" />
+      {/* Enhanced Code Examples */}
+      <Card className="relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 border-2 border-gray-600/50 shadow-2xl">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23F97316" fill-opacity="0.1"%3E%3Crect width="2" height="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+        <CardHeader className="relative">
+          <CardTitle className="text-white flex items-center gap-3 text-2xl">
+            <div className="p-2 bg-orange-500/20 rounded-lg backdrop-blur-sm">
+              <Code className="text-orange-400" size={32} />
+            </div>
             Production ETL Pipeline Examples with AI
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-8 relative">
           {etlExamples.map((example, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center gap-2">
-                <h4 className="text-orange-400 font-semibold">{example.title}</h4>
-                <Badge variant="outline" className="text-gray-300 border-gray-600">
-                  {example.language}
-                </Badge>
+            <div key={index} className="group">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="text-3xl">{example.icon}</div>
+                <div>
+                  <h4 className="text-orange-400 font-bold text-xl">{example.title}</h4>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Badge variant="outline" className="text-gray-300 border-gray-600 bg-black/30">
+                      {example.language}
+                    </Badge>
+                    <Badge className={`${
+                      example.complexity === 'Expert' ? 'bg-red-600' :
+                      example.complexity === 'Advanced' ? 'bg-orange-600' : 'bg-blue-600'
+                    }`}>
+                      {example.complexity}
+                    </Badge>
+                  </div>
+                </div>
               </div>
-              <pre className="bg-black/60 p-4 rounded-lg text-green-400 font-mono text-sm overflow-x-auto border border-gray-700">
-                {example.code}
-              </pre>
+              <div className="relative">
+                <pre className="bg-black/80 p-6 rounded-xl text-green-400 font-mono text-sm overflow-x-auto border-2 border-gray-700/50 backdrop-blur-sm group-hover:border-orange-500/30 transition-all duration-300">
+                  {example.code}
+                </pre>
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-gradient-to-r from-orange-600 to-red-600">
+                    <Star size={14} className="mr-1" />
+                    Example
+                  </Badge>
+                </div>
+              </div>
             </div>
           ))}
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-blue-500">
-        <CardHeader>
-          <CardTitle className="text-white">🚀 Master Modern Data Engineering with AI</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <h4 className="text-blue-400 font-semibold">Foundation Skills</h4>
-              <ul className="text-gray-300 space-y-1 text-sm">
-                <li>• Learn Python, SQL, and cloud platforms (AWS/GCP/Azure)</li>
-                <li>• Master Apache Airflow for workflow orchestration</li>
-                <li>• Understand dbt for data transformations</li>
-                <li>• Practice with real datasets and ETL scenarios</li>
-                <li>• Study data modeling and warehouse design</li>
-              </ul>
+      {/* Enhanced Career Guide */}
+      <Card className="relative overflow-hidden bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-pink-900/40 border-2 border-blue-500/50 shadow-2xl">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%234F46E5" fill-opacity="0.1"%3E%3Cpath d="M0 0h80v80H0z" transform="rotate(45 40 40)"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+        <CardHeader className="relative">
+          <CardTitle className="text-white flex items-center gap-3 text-3xl">
+            <div className="p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl backdrop-blur-sm">
+              <Trophy size={36} className="text-yellow-400" />
             </div>
-            <div className="space-y-3">
-              <h4 className="text-purple-400 font-semibold">AI-Enhanced Skills</h4>
-              <ul className="text-gray-300 space-y-1 text-sm">
-                <li>• Integrate LLMs into data workflows (LangChain, GPT APIs)</li>
-                <li>• Build ML-powered data quality monitoring</li>
-                <li>• Create AI agents for pipeline automation</li>
-                <li>• Implement vector databases for semantic search</li>
-                <li>• Design self-healing data architectures</li>
-              </ul>
+            Master Modern Data Engineering with AI
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="relative">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <Award className="text-blue-400" size={24} />
+                <h4 className="text-blue-400 font-bold text-xl">Foundation Skills</h4>
+              </div>
+              <div className="space-y-3">
+                {[
+                  "Learn Python, SQL, and cloud platforms (AWS/GCP/Azure)",
+                  "Master Apache Airflow for workflow orchestration", 
+                  "Understand dbt for data transformations",
+                  "Practice with real datasets and ETL scenarios",
+                  "Study data modeling and warehouse design"
+                ].map((skill, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-blue-900/20 rounded-lg border border-blue-500/20">
+                    <Zap size={16} className="text-blue-400" />
+                    <span className="text-gray-300">{skill}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <Star className="text-purple-400" size={24} />
+                <h4 className="text-purple-400 font-bold text-xl">AI-Enhanced Skills</h4>
+              </div>
+              <div className="space-y-3">
+                {[
+                  "Integrate LLMs into data workflows (LangChain, GPT APIs)",
+                  "Build ML-powered data quality monitoring",
+                  "Create AI agents for pipeline automation", 
+                  "Implement vector databases for semantic search",
+                  "Design self-healing data architectures"
+                ].map((skill, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-purple-900/20 rounded-lg border border-purple-500/20">
+                    <Zap size={16} className="text-purple-400" />
+                    <span className="text-gray-300">{skill}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           
-          <div className="mt-6 p-4 bg-black/30 rounded-lg border border-cyan-500">
-            <h4 className="text-cyan-400 font-semibold mb-2">🎯 Career Path: AI Data Engineer</h4>
-            <p className="text-gray-300 text-sm">
+          <div className="mt-8 p-6 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-xl border-2 border-cyan-500/50 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-cyan-500/20 rounded-lg">
+                <Trophy className="text-cyan-400" size={24} />
+              </div>
+              <h4 className="text-cyan-400 font-bold text-xl">🎯 Career Path: AI Data Engineer</h4>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
               The future belongs to data engineers who can leverage AI to build intelligent, self-managing data systems. 
               Start with traditional ETL, then progressively add AI capabilities to automate and optimize every aspect of your pipelines.
             </p>
+            <div className="flex gap-4 mt-4">
+              <Badge className="bg-gradient-to-r from-green-600 to-emerald-600">
+                High Demand
+              </Badge>
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600">
+                Future-Proof
+              </Badge>
+              <Badge className="bg-gradient-to-r from-yellow-600 to-orange-600">
+                High Impact
+              </Badge>
+            </div>
           </div>
         </CardContent>
       </Card>
