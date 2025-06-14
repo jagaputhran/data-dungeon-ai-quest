@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import MissionSelector from "@/components/aiops/MissionSelector";
 import CodeEditor from "@/components/aiops/CodeEditor";
 import SimulationPanel from "@/components/aiops/SimulationPanel";
 import { aiOpsMissions } from "@/data/aiOpsMissions";
-import { Docker, Settings, Zap, AlertTriangle, Check } from "lucide-react";
+import { Container, Settings, Zap, AlertTriangle, Check } from "lucide-react";
 
 interface AiOpsArenaProps {
   onScoreUpdate: (points: number) => void;
@@ -90,7 +89,7 @@ const AiOpsArena = ({ onScoreUpdate }: AiOpsArenaProps) => {
         <Card className="bg-gray-800/50 border-gray-600">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <Docker size={20} />
+              <Container size={20} />
               Mission Control
             </CardTitle>
           </CardHeader>

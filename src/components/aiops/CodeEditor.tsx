@@ -8,12 +8,12 @@ import { Zap, Copy, CheckCircle } from "lucide-react";
 
 interface CodeEditorProps {
   mission: AiOpsMission;
-  onCodeGenerated: (code: any) => void;
+  onCodeGenerated: (code: Record<string, string>) => void;
 }
 
 const CodeEditor = ({ mission, onCodeGenerated }: CodeEditorProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedCode, setGeneratedCode] = useState<any>(null);
+  const [generatedCode, setGeneratedCode] = useState<Record<string, string> | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleGenerateCode = () => {
@@ -112,7 +112,7 @@ const CodeEditor = ({ mission, onCodeGenerated }: CodeEditorProps) => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleCopyCode(codeType, code as string)}
+                    onClick={() => handleCopyCode(codeType, code)}
                     className="text-xs"
                   >
                     {copiedField === codeType ? (
