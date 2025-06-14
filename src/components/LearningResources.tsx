@@ -328,47 +328,47 @@ monitor.ai_stream_processor()`
 
   return (
     <div className="space-y-8">
-      {/* Hero Section with Enhanced Graphics */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-green-900/40 via-blue-900/40 to-purple-900/40 border-2 border-green-500/50 shadow-2xl">
+      {/* Hero Section with Better Contrast */}
+      <Card className="relative overflow-hidden bg-gray-900/95 border-2 border-green-400/60 shadow-2xl">
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-3xl">
-            <div className="p-3 bg-green-500/20 rounded-xl backdrop-blur-sm">
-              <BookOpen className="text-green-400" size={36} />
+            <div className="p-3 bg-green-500/20 rounded-xl backdrop-blur-sm border border-green-400/30">
+              <BookOpen className="text-green-300" size={36} />
             </div>
             AI is Revolutionizing the Entire Data Engineering Stack
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 relative">
-          <p className="text-gray-200 leading-relaxed text-lg">
+          <p className="text-gray-100 leading-relaxed text-lg">
             This game demonstrates how AI is transforming every aspect of data engineering - from ETL pipelines to real-time processing. Modern data teams use LLMs to generate code, ML to monitor quality, and AI agents to orchestrate complex workflows that traditionally required extensive manual coding and maintenance.
           </p>
           
           <div className="grid md:grid-cols-3 gap-6">
             <div className="group transform hover:scale-105 transition-all duration-300">
-              <div className="bg-gradient-to-br from-red-900/40 to-orange-900/40 p-6 rounded-xl border-2 border-red-500/50 backdrop-blur-sm">
+              <div className="bg-gray-800/80 p-6 rounded-xl border-2 border-red-400/60 backdrop-blur-sm hover:border-red-400/80 transition-all">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <h4 className="text-red-400 font-bold text-lg">Legacy Approach</h4>
+                  <div className="w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
+                  <h4 className="text-red-300 font-bold text-lg">Legacy Approach</h4>
                 </div>
-                <p className="text-gray-300">Manual ETL coding, static schemas, reactive monitoring, siloed tools</p>
+                <p className="text-gray-200">Manual ETL coding, static schemas, reactive monitoring, siloed tools</p>
               </div>
             </div>
             <div className="group transform hover:scale-105 transition-all duration-300">
-              <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-6 rounded-xl border-2 border-blue-500/50 backdrop-blur-sm">
+              <div className="bg-gray-800/80 p-6 rounded-xl border-2 border-blue-400/60 backdrop-blur-sm hover:border-blue-400/80 transition-all">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                  <h4 className="text-blue-400 font-bold text-lg">AI-Native Approach</h4>
+                  <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+                  <h4 className="text-blue-300 font-bold text-lg">AI-Native Approach</h4>
                 </div>
-                <p className="text-gray-300">Code generation, adaptive schemas, predictive monitoring, unified AI platform</p>
+                <p className="text-gray-200">Code generation, adaptive schemas, predictive monitoring, unified AI platform</p>
               </div>
             </div>
             <div className="group transform hover:scale-105 transition-all duration-300">
-              <div className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 p-6 rounded-xl border-2 border-green-500/50 backdrop-blur-sm">
+              <div className="bg-gray-800/80 p-6 rounded-xl border-2 border-green-400/60 backdrop-blur-sm hover:border-green-400/80 transition-all">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <h4 className="text-green-400 font-bold text-lg">Future Vision</h4>
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <h4 className="text-green-300 font-bold text-lg">Future Vision</h4>
                 </div>
-                <p className="text-gray-300">Autonomous data operations, self-optimizing pipelines, natural language interfaces</p>
+                <p className="text-gray-200">Autonomous data operations, self-optimizing pipelines, natural language interfaces</p>
               </div>
             </div>
           </div>
@@ -377,11 +377,11 @@ monitor.ai_stream_processor()`
 
       {/* Enhanced ETL Concepts */}
       {etlConcepts.map((concept, index) => (
-        <Card key={index} className="relative overflow-hidden bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-2 border-purple-500/50 shadow-xl">
+        <Card key={index} className="relative overflow-hidden bg-gray-900/95 border-2 border-purple-400/60 shadow-xl">
           <CardHeader className="relative">
             <CardTitle className="text-white flex items-center gap-3 text-2xl">
-              <div className="p-2 bg-purple-500/20 rounded-lg backdrop-blur-sm">
-                <GitBranch className="text-purple-400" size={28} />
+              <div className="p-2 bg-purple-500/20 rounded-lg backdrop-blur-sm border border-purple-400/30">
+                <GitBranch className="text-purple-300" size={28} />
               </div>
               {concept.title}
             </CardTitle>
@@ -389,8 +389,8 @@ monitor.ai_stream_processor()`
           <CardContent className="relative">
             <div className="space-y-3">
               {concept.items.map((item, itemIndex) => (
-                <div key={itemIndex} className="flex items-start gap-3 p-3 bg-black/20 rounded-lg border border-purple-500/20 backdrop-blur-sm hover:bg-black/30 transition-all duration-300">
-                  <span className="text-lg leading-relaxed">{item}</span>
+                <div key={itemIndex} className="flex items-start gap-3 p-4 bg-gray-800/60 rounded-lg border border-purple-400/30 backdrop-blur-sm hover:bg-gray-800/80 transition-all duration-300">
+                  <span className="text-lg leading-relaxed text-gray-100">{item}</span>
                 </div>
               ))}
             </div>
@@ -400,10 +400,10 @@ monitor.ai_stream_processor()`
 
       {/* Enhanced Real-world Tools */}
       {realWorldTools.map((category, categoryIndex) => (
-        <Card key={categoryIndex} className={`relative overflow-hidden bg-gradient-to-br ${category.gradient} border-2 ${category.borderColor} shadow-xl`}>
+        <Card key={categoryIndex} className="relative overflow-hidden bg-gray-900/95 border-2 border-cyan-400/60 shadow-xl">
           <CardHeader className="relative">
             <CardTitle className="text-white flex items-center gap-3 text-2xl">
-              <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+              <div className="p-2 bg-cyan-500/20 rounded-lg backdrop-blur-sm border border-cyan-400/30">
                 {category.icon}
               </div>
               {category.category}
@@ -412,17 +412,17 @@ monitor.ai_stream_processor()`
           <CardContent className="relative">
             <div className="grid gap-4">
               {category.tools.map((tool, toolIndex) => (
-                <div key={toolIndex} className="group flex items-center justify-between p-4 bg-black/30 rounded-xl border border-gray-700/50 backdrop-blur-sm hover:bg-black/40 transition-all duration-300 transform hover:scale-[1.02]">
+                <div key={toolIndex} className="group flex items-center justify-between p-4 bg-gray-800/70 rounded-xl border border-gray-600/60 backdrop-blur-sm hover:bg-gray-800/90 hover:border-cyan-400/40 transition-all duration-300 transform hover:scale-[1.02]">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-cyan-400 font-bold text-lg">{tool.name}</h4>
-                      <Badge variant="outline" className="text-xs bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
+                      <h4 className="text-cyan-300 font-bold text-lg">{tool.name}</h4>
+                      <Badge variant="outline" className="text-xs bg-cyan-600/20 border-cyan-400/40 text-cyan-200">
                         {tool.badge}
                       </Badge>
                     </div>
-                    <p className="text-gray-300">{tool.description}</p>
+                    <p className="text-gray-200">{tool.description}</p>
                   </div>
-                  <Button variant="outline" size="sm" asChild className="border-gray-600 text-white hover:bg-gray-800 ml-4 group-hover:scale-110 transition-transform duration-200">
+                  <Button variant="outline" size="sm" asChild className="border-cyan-400/60 text-cyan-200 hover:bg-cyan-600/20 hover:border-cyan-400/80 ml-4 group-hover:scale-110 transition-transform duration-200">
                     <a href={tool.url} target="_blank" rel="noopener noreferrer">
                       <ExternalLink size={16} className="mr-1" />
                       Explore
@@ -436,11 +436,11 @@ monitor.ai_stream_processor()`
       ))}
 
       {/* Enhanced Code Examples */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 border-2 border-gray-600/50 shadow-2xl">
+      <Card className="relative overflow-hidden bg-gray-900/95 border-2 border-orange-400/60 shadow-2xl">
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-2xl">
-            <div className="p-2 bg-orange-500/20 rounded-lg backdrop-blur-sm">
-              <Code className="text-orange-400" size={32} />
+            <div className="p-2 bg-orange-500/20 rounded-lg backdrop-blur-sm border border-orange-400/30">
+              <Code className="text-orange-300" size={32} />
             </div>
             Production ETL Pipeline Examples with AI
           </CardTitle>
@@ -451,26 +451,26 @@ monitor.ai_stream_processor()`
               <div className="flex items-center gap-4 mb-4">
                 <div className="text-3xl">{example.icon}</div>
                 <div>
-                  <h4 className="text-orange-400 font-bold text-xl">{example.title}</h4>
+                  <h4 className="text-orange-300 font-bold text-xl">{example.title}</h4>
                   <div className="flex items-center gap-3 mt-2">
-                    <Badge variant="outline" className="text-gray-300 border-gray-600 bg-black/30">
+                    <Badge variant="outline" className="text-gray-200 border-gray-500/60 bg-gray-800/60">
                       {example.language}
                     </Badge>
                     <Badge className={`${
-                      example.complexity === 'Expert' ? 'bg-red-600' :
-                      example.complexity === 'Advanced' ? 'bg-orange-600' : 'bg-blue-600'
-                    }`}>
+                      example.complexity === 'Expert' ? 'bg-red-600/80 border border-red-400/30' :
+                      example.complexity === 'Advanced' ? 'bg-orange-600/80 border border-orange-400/30' : 'bg-blue-600/80 border border-blue-400/30'
+                    } text-white`}>
                       {example.complexity}
                     </Badge>
                   </div>
                 </div>
               </div>
               <div className="relative">
-                <pre className="bg-black/80 p-6 rounded-xl text-green-400 font-mono text-sm overflow-x-auto border-2 border-gray-700/50 backdrop-blur-sm group-hover:border-orange-500/30 transition-all duration-300">
+                <pre className="bg-gray-950/90 p-6 rounded-xl text-green-300 font-mono text-sm overflow-x-auto border-2 border-gray-700/60 backdrop-blur-sm group-hover:border-orange-400/40 transition-all duration-300">
                   {example.code}
                 </pre>
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-gradient-to-r from-orange-600 to-red-600">
+                  <Badge className="bg-orange-600/80 border border-orange-400/30 text-white">
                     <Star size={14} className="mr-1" />
                     Example
                   </Badge>
@@ -482,11 +482,11 @@ monitor.ai_stream_processor()`
       </Card>
 
       {/* Enhanced Career Guide */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-pink-900/40 border-2 border-blue-500/50 shadow-2xl">
+      <Card className="relative overflow-hidden bg-gray-900/95 border-2 border-blue-400/60 shadow-2xl">
         <CardHeader className="relative">
           <CardTitle className="text-white flex items-center gap-3 text-3xl">
-            <div className="p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl backdrop-blur-sm">
-              <Trophy size={36} className="text-yellow-400" />
+            <div className="p-3 bg-blue-500/20 rounded-xl backdrop-blur-sm border border-blue-400/30">
+              <Trophy size={36} className="text-yellow-300" />
             </div>
             Master Modern Data Engineering with AI
           </CardTitle>
@@ -495,8 +495,8 @@ monitor.ai_stream_processor()`
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-4">
-                <Award className="text-blue-400" size={24} />
-                <h4 className="text-blue-400 font-bold text-xl">Foundation Skills</h4>
+                <Award className="text-blue-300" size={24} />
+                <h4 className="text-blue-300 font-bold text-xl">Foundation Skills</h4>
               </div>
               <div className="space-y-3">
                 {[
@@ -506,17 +506,17 @@ monitor.ai_stream_processor()`
                   "Practice with real datasets and ETL scenarios",
                   "Study data modeling and warehouse design"
                 ].map((skill, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-blue-900/20 rounded-lg border border-blue-500/20">
-                    <Zap size={16} className="text-blue-400" />
-                    <span className="text-gray-300">{skill}</span>
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-800/60 rounded-lg border border-blue-400/30">
+                    <Zap size={16} className="text-blue-300" />
+                    <span className="text-gray-200">{skill}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-4">
-                <Star className="text-purple-400" size={24} />
-                <h4 className="text-purple-400 font-bold text-xl">AI-Enhanced Skills</h4>
+                <Star className="text-purple-300" size={24} />
+                <h4 className="text-purple-300 font-bold text-xl">AI-Enhanced Skills</h4>
               </div>
               <div className="space-y-3">
                 {[
@@ -526,34 +526,34 @@ monitor.ai_stream_processor()`
                   "Implement vector databases for semantic search",
                   "Design self-healing data architectures"
                 ].map((skill, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-purple-900/20 rounded-lg border border-purple-500/20">
-                    <Zap size={16} className="text-purple-400" />
-                    <span className="text-gray-300">{skill}</span>
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-800/60 rounded-lg border border-purple-400/30">
+                    <Zap size={16} className="text-purple-300" />
+                    <span className="text-gray-200">{skill}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
           
-          <div className="mt-8 p-6 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-xl border-2 border-cyan-500/50 backdrop-blur-sm">
+          <div className="mt-8 p-6 bg-gray-800/70 rounded-xl border-2 border-cyan-400/60 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-cyan-500/20 rounded-lg">
-                <Trophy className="text-cyan-400" size={24} />
+              <div className="p-2 bg-cyan-500/20 rounded-lg border border-cyan-400/30">
+                <Trophy className="text-cyan-300" size={24} />
               </div>
-              <h4 className="text-cyan-400 font-bold text-xl">🎯 Career Path: AI Data Engineer</h4>
+              <h4 className="text-cyan-300 font-bold text-xl">🎯 Career Path: AI Data Engineer</h4>
             </div>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-100 leading-relaxed">
               The future belongs to data engineers who can leverage AI to build intelligent, self-managing data systems. 
               Start with traditional ETL, then progressively add AI capabilities to automate and optimize every aspect of your pipelines.
             </p>
             <div className="flex gap-4 mt-4">
-              <Badge className="bg-gradient-to-r from-green-600 to-emerald-600">
+              <Badge className="bg-green-600/80 border border-green-400/30 text-white">
                 High Demand
               </Badge>
-              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600">
+              <Badge className="bg-blue-600/80 border border-blue-400/30 text-white">
                 Future-Proof
               </Badge>
-              <Badge className="bg-gradient-to-r from-yellow-600 to-orange-600">
+              <Badge className="bg-yellow-600/80 border border-yellow-400/30 text-white">
                 High Impact
               </Badge>
             </div>
