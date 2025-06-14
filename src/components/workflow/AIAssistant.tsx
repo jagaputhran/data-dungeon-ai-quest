@@ -25,152 +25,193 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
   const handleSendMessage = async () => {
     if (!userMessage.trim()) return;
     
-    console.log('Sending message:', userMessage);
+    console.log('AI Assistant - Sending message:', userMessage);
+    console.log('AI Assistant - Selected node:', selectedNode);
+    
     setIsGenerating(true);
     const newUserMessage = { role: "user", message: userMessage };
     setChatHistory(prev => [...prev, newUserMessage]);
     const currentMessage = userMessage;
     setUserMessage("");
     
-    // Simulate AI response based on context
+    // Simulate AI response with better error handling
     setTimeout(() => {
       let aiResponse = "";
       
-      if (selectedNode) {
-        console.log('Processing message for selected node:', selectedNode.type);
-        
-        if (currentMessage.toLowerCase().includes("configure") || currentMessage.toLowerCase().includes("setup")) {
-          aiResponse = `🔧 For your ${selectedNode.type} node, here are the key configurations:\n\n`;
+      try {
+        if (selectedNode) {
+          console.log('AI Assistant - Processing message for node:', selectedNode.type, selectedNode.id);
           
-          switch (selectedNode.type) {
-            case "HTTP Request":
-              aiResponse += "• URL: Enter your API endpoint (e.g., https://api.productboard.com/notes)\n• Method: GET/POST/PUT/DELETE\n• Headers: Add authentication tokens\n• Parameters: Query or body parameters\n\n💡 Example for Productboard:\n{\n  \"Authorization\": \"Bearer YOUR_TOKEN\",\n  \"Content-Type\": \"application/json\"\n}";
-              
-              // Auto-configure some basic settings
-              onNodeUpdate(selectedNode.id, {
-                config: {
-                  method: "GET",
-                  url: "https://api.productboard.com/notes",
-                  headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer YOUR_TOKEN_HERE"
-                  },
-                  timeout: 30000
-                }
-              });
-              break;
-              
-            case "Set":
-              aiResponse += "• Field Mapping: Map input fields to output\n• Data Types: Ensure proper type conversion\n• Expressions: Use JavaScript expressions for complex logic\n\n💡 Example mapping:\n{\n  \"feature_name\": \"{{$json.title}}\",\n  \"owner_email\": \"{{$json.owner.email}}\",\n  \"created_date\": \"{{$json.createdAt}}\"\n}";
-              
-              onNodeUpdate(selectedNode.id, {
-                config: {
-                  mappings: {
-                    "feature_name": "{{$json.title}}",
-                    "owner_email": "{{$json.owner.email}}",
-                    "created_date": "{{$json.createdAt}}"
-                  }
-                }
-              });
-              break;
-              
-            case "Database":
-              aiResponse += "• Connection: Database credentials\n• Operation: INSERT/UPDATE/SELECT\n• Table: Target table name\n• Mapping: Field to column mapping";
-              break;
-              
-            case "Snowflake":
-              aiResponse += "• Account: Snowflake account identifier\n• Warehouse: Compute warehouse name\n• Database & Schema: Target location\n• Credentials: Username/password or key pair";
-              break;
-              
-            default:
-              aiResponse += "• Check the node documentation for specific parameters\n• Use the configuration panel to set required fields";
-          }
-          
-        } else if (currentMessage.toLowerCase().includes("error") || currentMessage.toLowerCase().includes("fix")) {
-          aiResponse = `🔍 Let me help debug your ${selectedNode.type} node:\n\n`;
-          aiResponse += "Common issues:\n";
-          aiResponse += "• Check authentication credentials\n";
-          aiResponse += "• Verify API endpoints are accessible\n";
-          aiResponse += "• Ensure data mapping is correct\n";
-          aiResponse += "• Add error handling and retries\n\n";
-          aiResponse += "💡 Tip: Enable verbose logging to see detailed error messages.";
-          
-        } else if (currentMessage.toLowerCase().includes("api") || currentMessage.toLowerCase().includes("fetch")) {
-          aiResponse = `🌐 Configuring API fetch for ${selectedNode.type}:\n\n`;
-          if (selectedNode.type === "HTTP Request") {
-            aiResponse += "Here's a complete setup for fetching data:\n\n";
-            aiResponse += "1. **URL**: Enter your API endpoint\n";
-            aiResponse += "2. **Authentication**: Add API key in headers\n";
-            aiResponse += "3. **Method**: Usually GET for fetching data\n";
-            aiResponse += "4. **Error Handling**: Add retry logic\n\n";
-            aiResponse += "✅ I've pre-configured basic settings for you!";
+          if (currentMessage.toLowerCase().includes("configure") || currentMessage.toLowerCase().includes("setup")) {
+            aiResponse = `🔧 Configuring your ${selectedNode.type} node "${selectedNode.title}":\n\n`;
             
-            onNodeUpdate(selectedNode.id, {
-              config: {
-                method: "GET",
-                url: "https://api.example.com/data",
-                headers: { 
-                  "Content-Type": "application/json",
-                  "Authorization": "Bearer YOUR_API_KEY"
-                },
-                timeout: 30000,
-                retry: 3
-              }
-            });
+            switch (selectedNode.type) {
+              case "HTTP Request":
+                aiResponse += "✅ **HTTP Request Configuration:**\n";
+                aiResponse += "• URL: Enter your API endpoint\n";
+                aiResponse += "• Method: GET/POST/PUT/DELETE\n";
+                aiResponse += "• Headers: Add authentication tokens\n";
+                aiResponse += "• Parameters: Query or body parameters\n\n";
+                aiResponse += "💡 **Example for API fetching:**\n";
+                aiResponse += "```json\n{\n  \"Authorization\": \"Bearer YOUR_TOKEN\",\n  \"Content-Type\": \"application/json\"\n}\n```";
+                
+                // Auto-configure basic settings
+                onNodeUpdate(selectedNode.id, {
+                  config: {
+                    method: "GET",
+                    url: "https://api.example.com/data",
+                    headers: { 
+                      "Content-Type": "application/json",
+                      "Authorization": "Bearer YOUR_TOKEN_HERE"
+                    },
+                    timeout: 30000
+                  }
+                });
+                aiResponse += "\n\n✅ I've pre-configured basic settings for you!";
+                break;
+                
+              case "Set":
+                aiResponse += "✅ **Data Mapping Configuration:**\n";
+                aiResponse += "• **Field Mapping**: Map input fields to output fields\n";
+                aiResponse += "• **Data Types**: Ensure proper type conversion\n";
+                aiResponse += "• **Expressions**: Use JavaScript expressions for complex logic\n\n";
+                aiResponse += "💡 **Example mapping configuration:**\n";
+                aiResponse += "```json\n{\n  \"feature_name\": \"{{$json.title}}\",\n  \"owner_email\": \"{{$json.owner.email}}\",\n  \"created_date\": \"{{$json.createdAt}}\",\n  \"status\": \"{{$json.status || 'active'}}\"\n}\n```\n\n";
+                aiResponse += "🎯 **Common use cases:**\n";
+                aiResponse += "• Rename fields from API responses\n";
+                aiResponse += "• Calculate new values\n";
+                aiResponse += "• Format dates and numbers\n";
+                aiResponse += "• Set default values";
+                
+                // Auto-configure mapping
+                onNodeUpdate(selectedNode.id, {
+                  config: {
+                    mappings: {
+                      "feature_name": "{{$json.title}}",
+                      "owner_email": "{{$json.owner.email}}",
+                      "created_date": "{{$json.createdAt}}",
+                      "status": "{{$json.status || 'active'}}"
+                    },
+                    keepOnlySet: false,
+                    options: {}
+                  }
+                });
+                aiResponse += "\n\n✅ I've configured basic field mappings for you!";
+                break;
+                
+              case "Database":
+                aiResponse += "✅ **Database Configuration:**\n";
+                aiResponse += "• **Connection**: Database credentials and host\n";
+                aiResponse += "• **Operation**: INSERT/UPDATE/SELECT/DELETE\n";
+                aiResponse += "• **Table**: Target table name\n";
+                aiResponse += "• **Mapping**: Field to column mapping\n\n";
+                aiResponse += "💡 **Example configuration:**\n";
+                aiResponse += "```json\n{\n  \"operation\": \"INSERT\",\n  \"table\": \"features\",\n  \"columns\": [\"name\", \"owner\", \"created_at\"]\n}\n```";
+                
+                onNodeUpdate(selectedNode.id, {
+                  config: {
+                    operation: "INSERT",
+                    table: "features",
+                    columns: ["name", "owner", "created_at"]
+                  }
+                });
+                aiResponse += "\n\n✅ Basic database configuration applied!";
+                break;
+                
+              case "Snowflake":
+                aiResponse += "✅ **Snowflake Configuration:**\n";
+                aiResponse += "• **Account**: Snowflake account identifier\n";
+                aiResponse += "• **Warehouse**: Compute warehouse name\n";
+                aiResponse += "• **Database & Schema**: Target location\n";
+                aiResponse += "• **Credentials**: Username/password or key pair\n\n";
+                aiResponse += "💡 **Connection example:**\n";
+                aiResponse += "```json\n{\n  \"account\": \"abc12345.snowflakecomputing.com\",\n  \"warehouse\": \"COMPUTE_WH\",\n  \"database\": \"ANALYTICS\",\n  \"schema\": \"RAW_DATA\"\n}\n```";
+                break;
+                
+              default:
+                aiResponse += `• **Node Type**: ${selectedNode.type}\n`;
+                aiResponse += "• Check the node documentation for specific parameters\n";
+                aiResponse += "• Use the configuration panel to set required fields\n\n";
+                aiResponse += "💡 **Tip**: Each node type has different configuration options. Let me know what specific settings you need help with!";
+            }
+            
+          } else if (currentMessage.toLowerCase().includes("error") || currentMessage.toLowerCase().includes("fix")) {
+            aiResponse = `🔍 **Debugging your ${selectedNode.type} node:**\n\n`;
+            aiResponse += "**Common issues to check:**\n";
+            aiResponse += "• ✅ Authentication credentials are correct\n";
+            aiResponse += "• ✅ API endpoints are accessible and valid\n";
+            aiResponse += "• ✅ Data mapping fields match input structure\n";
+            aiResponse += "• ✅ Required fields are not empty\n";
+            aiResponse += "• ✅ Network connectivity is working\n\n";
+            aiResponse += "💡 **Tip**: Enable verbose logging to see detailed error messages and check the execution panel for specific error details.";
+            
           } else {
-            aiResponse += `This node type (${selectedNode.type}) is not for API fetching. Try using an HTTP Request node instead!`;
+            aiResponse = `ℹ️ **About ${selectedNode.type} nodes:**\n\n`;
+            aiResponse += getNodeExplanation(selectedNode.type);
+            aiResponse += "\n\n💡 **Quick actions**: Try asking me to 'configure this node' or 'help me set up this node'!";
           }
         } else {
-          aiResponse = `ℹ️ About ${selectedNode.type} nodes:\n\n`;
-          aiResponse += getNodeExplanation(selectedNode.type);
+          // No node selected responses
+          if (currentMessage.toLowerCase().includes("workflow") || currentMessage.toLowerCase().includes("pipeline")) {
+            aiResponse = "🚀 **Workflow Best Practices:**\n\n";
+            aiResponse += "1. **Start Simple**: Begin with input → transform → output\n";
+            aiResponse += "2. **Error Handling**: Add error nodes for resilience\n";
+            aiResponse += "3. **Testing**: Test each node individually first\n";
+            aiResponse += "4. **Monitoring**: Add logging and notifications\n";
+            aiResponse += "5. **Documentation**: Name nodes clearly and add descriptions\n\n";
+            aiResponse += "💡 **Tip**: Select a node first to get specific configuration help!";
+          } else if (currentMessage.toLowerCase().includes("api") || currentMessage.toLowerCase().includes("fetch")) {
+            aiResponse = "🌐 **To fetch data from APIs:**\n\n";
+            aiResponse += "1. **Add HTTP Request Node**: Drag from the Input section\n";
+            aiResponse += "2. **Configure URL**: Set your API endpoint\n";
+            aiResponse += "3. **Add Authentication**: Include API keys or tokens\n";
+            aiResponse += "4. **Test Connection**: Run a single node test\n\n";
+            aiResponse += "💡 **Next step**: Select an HTTP Request node and ask me to configure it!";
+          } else {
+            aiResponse = "🤖 **I can help with:**\n\n";
+            aiResponse += "• **Node Configuration**: Select any node and ask me to configure it\n";
+            aiResponse += "• **Workflow Design**: Best practices and architecture\n";
+            aiResponse += "• **Debugging**: Fix errors and connection issues\n";
+            aiResponse += "• **Learning**: Explain concepts and node types\n\n";
+            aiResponse += "💡 **Try this**: Select a node on the canvas, then ask 'configure this node'!";
+          }
         }
-      } else {
-        if (currentMessage.toLowerCase().includes("workflow") || currentMessage.toLowerCase().includes("pipeline")) {
-          aiResponse = "🚀 Workflow Best Practices:\n\n";
-          aiResponse += "1. **Start Simple**: Begin with input → transform → output\n";
-          aiResponse += "2. **Error Handling**: Add error nodes for resilience\n";
-          aiResponse += "3. **Testing**: Test each node individually first\n";
-          aiResponse += "4. **Monitoring**: Add logging and notifications\n";
-          aiResponse += "5. **Documentation**: Name nodes clearly and add descriptions";
-        } else if (currentMessage.toLowerCase().includes("api") || currentMessage.toLowerCase().includes("fetch")) {
-          aiResponse = "🌐 To fetch data from APIs:\n\n";
-          aiResponse += "1. **Add HTTP Request Node**: From the palette, drag an HTTP Request node\n";
-          aiResponse += "2. **Configure URL**: Set your API endpoint\n";
-          aiResponse += "3. **Add Authentication**: Include API keys or tokens\n";
-          aiResponse += "4. **Test Connection**: Run a single node test\n\n";
-          aiResponse += "💡 Select an HTTP Request node and I'll help you configure it!";
-        } else {
-          aiResponse = "🤖 I can help with workflow design, node configuration, debugging, and best practices. What would you like to know?\n\n";
-          aiResponse += "💡 Try selecting a node first, then ask me to configure it for API fetching!";
-        }
+        
+        console.log('AI Assistant - Generated response:', aiResponse);
+        setChatHistory(prev => [...prev, { role: "assistant", message: aiResponse }]);
+        
+      } catch (error) {
+        console.error('AI Assistant - Error generating response:', error);
+        setChatHistory(prev => [...prev, { 
+          role: "assistant", 
+          message: "❌ Sorry, I encountered an error. Please try again or rephrase your question." 
+        }]);
       }
       
-      console.log('AI Response generated:', aiResponse);
-      setChatHistory(prev => [...prev, { role: "assistant", message: aiResponse }]);
       setIsGenerating(false);
     }, 1000);
   };
 
   const getNodeExplanation = (nodeType: string): string => {
     const explanations: Record<string, string> = {
-      "HTTP Request": "Makes API calls to external services. Perfect for fetching data from REST APIs, webhooks, or any HTTP endpoint. Configure the URL, method, headers, and authentication.",
-      "Set": "Transforms and maps data fields. Use JavaScript expressions to manipulate data, rename fields, or perform calculations. Essential for data transformation.",
-      "Database": "Connects to SQL databases for reading/writing data. Supports MySQL, PostgreSQL, and other popular databases.",
-      "CSV Read": "Reads data from CSV files. Useful for batch processing of uploaded files or scheduled data imports.",
-      "Filter": "Filters data based on conditions. Only rows meeting your criteria will pass through to the next node.",
-      "If": "Creates conditional logic in your workflow. Routes data based on boolean conditions.",
-      "Slack": "Sends messages to Slack channels. Great for notifications, alerts, and workflow status updates.",
-      "Snowflake": "Connects to Snowflake data warehouse. Ideal for analytics and big data processing workflows.",
+      "HTTP Request": "**Makes API calls** to external services. Perfect for fetching data from REST APIs, webhooks, or any HTTP endpoint. Configure the URL, method, headers, and authentication.",
+      "Set": "**Transforms and maps data** fields. Use JavaScript expressions to manipulate data, rename fields, perform calculations, or set default values. Essential for data transformation between different formats.",
+      "Database": "**Connects to SQL databases** for reading/writing data. Supports MySQL, PostgreSQL, and other popular databases. Configure connection details and SQL operations.",
+      "CSV Read": "**Reads data from CSV files**. Useful for batch processing of uploaded files or scheduled data imports from file sources.",
+      "Filter": "**Filters data based on conditions**. Only rows meeting your criteria will pass through to the next node. Use for data quality and filtering.",
+      "If": "**Creates conditional logic** in your workflow. Routes data based on boolean conditions to different paths in your workflow.",
+      "Slack": "**Sends messages to Slack** channels. Great for notifications, alerts, and workflow status updates. Configure webhook URL and message format.",
+      "Snowflake": "**Connects to Snowflake** data warehouse. Ideal for analytics and big data processing workflows. Configure account, warehouse, and credentials.",
     };
     
     return explanations[nodeType] || "This node performs specific operations in your workflow. Check the documentation for detailed usage.";
   };
 
   const quickActions = [
-    { label: "Configure for API", action: "Help me configure this node to fetch data from an API" },
-    { label: "Explain this node", action: "What does this node do and how should I configure it?" },
-    { label: "Fix configuration", action: "Help me configure this node properly" },
-    { label: "Add error handling", action: "How can I add error handling to my workflow?" }
+    { label: "Configure Node", action: "Configure this node for me" },
+    { label: "Explain Node", action: "What does this node do and how should I configure it?" },
+    { label: "Fix Issues", action: "Help me debug and fix any issues with this node" },
+    { label: "Best Practices", action: "What are the best practices for this node type?" }
   ];
 
   return (
@@ -182,7 +223,7 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
         </CardTitle>
         {selectedNode && (
           <Badge variant="outline" className="w-fit">
-            Helping with: {selectedNode.type}
+            Configuring: {selectedNode.type}
           </Badge>
         )}
       </CardHeader>
