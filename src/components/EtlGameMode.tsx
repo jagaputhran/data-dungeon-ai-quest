@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,11 @@ import {
   MessageSquare,
   Play,
   Star,
-  Trophy
+  Trophy,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  BarChart3
 } from "lucide-react";
 
 interface EtlGameModeProps {
@@ -36,6 +39,10 @@ const EtlGameMode = ({ onScoreUpdate }: EtlGameModeProps) => {
   const [gameProgress, setGameProgress] = useState(0);
   const [naturalLanguagePrompt, setNaturalLanguagePrompt] = useState("");
   const [generatedPipeline, setGeneratedPipeline] = useState("");
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [deploymentStatus, setDeploymentStatus] = useState<string | null>(null);
+  const [simulationResults, setSimulationResults] = useState<any | null>(null);
   const { toast } = useToast();
 
   const etlStages = {
@@ -232,6 +239,84 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
     });
   };
 
+  const deployPipeline = async () => {
+    if (!generatedPipeline) {
+      toast({
+        title: "No Pipeline to Deploy",
+        description: "Please generate a pipeline first before deploying.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsDeploying(true);
+    setDeploymentStatus("Initializing deployment...");
+
+    // Simulate deployment process
+    const deploymentSteps = [
+      "Validating pipeline syntax...",
+      "Checking dependencies...",
+      "Setting up Spark cluster...",
+      "Uploading pipeline code...",
+      "Configuring data connections...",
+      "Starting pipeline deployment...",
+      "Pipeline successfully deployed!"
+    ];
+
+    for (let i = 0; i < deploymentSteps.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setDeploymentStatus(deploymentSteps[i]);
+    }
+
+    setIsDeploying(false);
+    onScoreUpdate(500); // Bonus points for deployment
+    
+    toast({
+      title: "🚀 Pipeline Deployed!",
+      description: "Your ETL pipeline is now live and ready to process data!",
+    });
+  };
+
+  const simulateRun = async () => {
+    if (!generatedPipeline) {
+      toast({
+        title: "No Pipeline to Simulate",
+        description: "Please generate a pipeline first before simulating.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSimulating(true);
+    setSimulationResults(null);
+
+    // Simulate pipeline execution
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const mockResults = {
+      status: "SUCCESS",
+      executionTime: "2.34 seconds",
+      recordsProcessed: 15420,
+      recordsCleaned: 14892,
+      recordsSkipped: 528,
+      dataQualityScore: 96.8,
+      stages: [
+        { name: "Extract", status: "✅ Success", duration: "0.45s", records: 15420 },
+        { name: "Transform", status: "✅ Success", duration: "1.23s", records: 14892 },
+        { name: "Load", status: "✅ Success", duration: "0.66s", records: 14892 }
+      ]
+    };
+
+    setSimulationResults(mockResults);
+    setIsSimulating(false);
+    onScoreUpdate(400); // Bonus points for simulation
+    
+    toast({
+      title: "🧪 Simulation Complete!",
+      description: `Pipeline processed ${mockResults.recordsProcessed} records successfully!`,
+    });
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Beginner": return "bg-green-500";
@@ -363,15 +448,89 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
                 {generatedPipeline}
               </pre>
               <div className="mt-4 flex gap-2">
-                <Button variant="outline" className="border-green-400 text-green-400 hover:bg-green-400 hover:text-black">
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  Deploy Pipeline
+                <Button 
+                  onClick={deployPipeline}
+                  disabled={isDeploying}
+                  className="border-green-400 text-green-400 hover:bg-green-400 hover:text-black"
+                  variant="outline"
+                >
+                  {isDeploying ? (
+                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                  )}
+                  {isDeploying ? "Deploying..." : "Deploy Pipeline"}
                 </Button>
-                <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-black">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Simulate Run
+                <Button 
+                  onClick={simulateRun}
+                  disabled={isSimulating}
+                  className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-black"
+                  variant="outline"
+                >
+                  {isSimulating ? (
+                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Eye className="w-4 h-4 mr-2" />
+                  )}
+                  {isSimulating ? "Simulating..." : "Simulate Run"}
                 </Button>
               </div>
+
+              {/* Deployment Status */}
+              {deploymentStatus && (
+                <div className="mt-4 p-4 bg-green-900/20 border border-green-400 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    {isDeploying ? (
+                      <Clock className="w-5 h-5 text-green-400 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                    )}
+                    <span className="text-green-400 font-medium">Deployment Status:</span>
+                  </div>
+                  <p className="text-green-300 mt-1">{deploymentStatus}</p>
+                </div>
+              )}
+
+              {/* Simulation Results */}
+              {simulationResults && (
+                <div className="mt-4 p-4 bg-blue-900/20 border border-blue-400 rounded-lg">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BarChart3 className="w-5 h-5 text-blue-400" />
+                    <span className="text-blue-400 font-bold">Simulation Results</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-blue-400">{simulationResults.recordsProcessed.toLocaleString()}</p>
+                      <p className="text-blue-300 text-sm">Records Processed</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-green-400">{simulationResults.recordsCleaned.toLocaleString()}</p>
+                      <p className="text-green-300 text-sm">Records Cleaned</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-yellow-400">{simulationResults.dataQualityScore}%</p>
+                      <p className="text-yellow-300 text-sm">Quality Score</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-cyan-400">{simulationResults.executionTime}</p>
+                      <p className="text-cyan-300 text-sm">Execution Time</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <h5 className="text-white font-medium">Stage Breakdown:</h5>
+                    {simulationResults.stages.map((stage: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-gray-800/50 rounded">
+                        <span className="text-white">{stage.name}</span>
+                        <div className="flex items-center gap-4">
+                          <span className="text-gray-300 text-sm">{stage.records.toLocaleString()} records</span>
+                          <span className="text-gray-300 text-sm">{stage.duration}</span>
+                          <span className="text-sm">{stage.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
