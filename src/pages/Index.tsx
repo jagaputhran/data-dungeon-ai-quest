@@ -9,7 +9,8 @@ import Scoreboard from "@/components/Scoreboard";
 import LearningResources from "@/components/LearningResources";
 import EtlGameMode from "@/components/EtlGameMode";
 import AiOpsArena from "@/components/AiOpsArena";
-import { Sword, Brain, Database, FileJson, Workflow, Zap } from "lucide-react";
+import WorkflowBuilder from "@/components/WorkflowBuilder";
+import { Sword, Brain, Database, FileJson, Workflow, Zap, GitBranch } from "lucide-react";
 
 const Index = () => {
   const [totalScore, setTotalScore] = useState(0);
@@ -53,7 +54,7 @@ const Index = () => {
         <Card className="bg-black/20 backdrop-blur-sm border-gray-600">
           <CardContent className="p-6">
             <Tabs defaultValue="battle" className="w-full">
-              <TabsList className="grid w-full grid-cols-6 mb-6">
+              <TabsList className="grid w-full grid-cols-7 mb-6">
                 <TabsTrigger value="battle" className="text-lg">
                   🎮 CSV Battle
                 </TabsTrigger>
@@ -68,6 +69,10 @@ const Index = () => {
                 <TabsTrigger value="aiops" className="text-lg">
                   <Zap className="mr-1" size={16} />
                   AI Ops
+                </TabsTrigger>
+                <TabsTrigger value="workflow" className="text-lg">
+                  <GitBranch className="mr-1" size={16} />
+                  Workflow
                 </TabsTrigger>
                 <TabsTrigger value="scoreboard" className="text-lg">
                   🏆 Scoreboard
@@ -91,6 +96,10 @@ const Index = () => {
 
               <TabsContent value="aiops">
                 <AiOpsArena onScoreUpdate={updateScore} />
+              </TabsContent>
+
+              <TabsContent value="workflow">
+                <WorkflowBuilder onScoreUpdate={updateScore} />
               </TabsContent>
 
               <TabsContent value="scoreboard">
