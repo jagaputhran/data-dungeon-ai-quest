@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +8,8 @@ import JsonBattleMode from "@/components/JsonBattleMode";
 import Scoreboard from "@/components/Scoreboard";
 import LearningResources from "@/components/LearningResources";
 import EtlGameMode from "@/components/EtlGameMode";
-import { Sword, Brain, Database, FileJson, Workflow } from "lucide-react";
+import AiOpsArena from "@/components/AiOpsArena";
+import { Sword, Brain, Database, FileJson, Workflow, Zap } from "lucide-react";
 
 const Index = () => {
   const [totalScore, setTotalScore] = useState(0);
@@ -51,7 +53,7 @@ const Index = () => {
         <Card className="bg-black/20 backdrop-blur-sm border-gray-600">
           <CardContent className="p-6">
             <Tabs defaultValue="battle" className="w-full">
-              <TabsList className="grid w-full grid-cols-5 mb-6">
+              <TabsList className="grid w-full grid-cols-6 mb-6">
                 <TabsTrigger value="battle" className="text-lg">
                   🎮 CSV Battle
                 </TabsTrigger>
@@ -62,6 +64,10 @@ const Index = () => {
                 <TabsTrigger value="etl-game" className="text-lg">
                   <Workflow className="mr-1" size={16} />
                   ETL Ops
+                </TabsTrigger>
+                <TabsTrigger value="aiops" className="text-lg">
+                  <Zap className="mr-1" size={16} />
+                  AI Ops
                 </TabsTrigger>
                 <TabsTrigger value="scoreboard" className="text-lg">
                   🏆 Scoreboard
@@ -81,6 +87,10 @@ const Index = () => {
 
               <TabsContent value="etl-game">
                 <EtlGameMode onScoreUpdate={updateScore} />
+              </TabsContent>
+
+              <TabsContent value="aiops">
+                <AiOpsArena onScoreUpdate={updateScore} />
               </TabsContent>
 
               <TabsContent value="scoreboard">
