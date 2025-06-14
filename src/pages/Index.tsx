@@ -27,14 +27,14 @@ const Index = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-4 flex items-center justify-center gap-4 animate-fade-in">
-            <Sword className="text-yellow-400 animate-bounce" size={48} />
+            <Zap className="text-yellow-400 animate-bounce" size={48} />
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
-              Agent JAGA: The Data Clean-Up Commando
+              Agent JAGA: AI-Powered Data & Automation Academy
             </span>
-            <Database className="text-cyan-400 animate-bounce animation-delay-75" size={48} />
+            <Workflow className="text-cyan-400 animate-bounce animation-delay-75" size={48} />
           </h1>
           <p className="text-xl text-gray-200 max-w-4xl mx-auto leading-relaxed">
-            Fight data chaos in the realm of automation! In this AI-powered game, you battle corrupted datasets using intelligent tools like schema generators, anomaly detectors, and GPT cleaners. Each win teaches you a key lesson in modern data engineering.
+            Master the complete data engineering ecosystem! Battle corrupted datasets, orchestrate ETL pipelines, deploy AI operations, and build intelligent workflows. Each challenge teaches you cutting-edge automation skills with real-world scenarios.
           </p>
           <div className="flex justify-center gap-4 mt-6">
             <Badge variant="secondary" className="text-lg px-4 py-2">
