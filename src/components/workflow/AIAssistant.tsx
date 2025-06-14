@@ -25,9 +25,11 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
   const handleSendMessage = async () => {
     if (!userMessage.trim()) return;
     
+    console.log('Sending message:', userMessage);
     setIsGenerating(true);
     const newUserMessage = { role: "user", message: userMessage };
     setChatHistory(prev => [...prev, newUserMessage]);
+    const currentMessage = userMessage;
     setUserMessage("");
     
     // Simulate AI response based on context
@@ -35,38 +37,56 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
       let aiResponse = "";
       
       if (selectedNode) {
-        if (userMessage.toLowerCase().includes("configure") || userMessage.toLowerCase().includes("setup")) {
+        console.log('Processing message for selected node:', selectedNode.type);
+        
+        if (currentMessage.toLowerCase().includes("configure") || currentMessage.toLowerCase().includes("setup")) {
           aiResponse = `🔧 For your ${selectedNode.type} node, here are the key configurations:\n\n`;
           
           switch (selectedNode.type) {
             case "HTTP Request":
-              aiResponse += "• URL: Enter your API endpoint\n• Method: GET/POST/PUT/DELETE\n• Headers: Add authentication tokens\n• Parameters: Query or body parameters";
+              aiResponse += "• URL: Enter your API endpoint (e.g., https://api.productboard.com/notes)\n• Method: GET/POST/PUT/DELETE\n• Headers: Add authentication tokens\n• Parameters: Query or body parameters\n\n💡 Example for Productboard:\n{\n  \"Authorization\": \"Bearer YOUR_TOKEN\",\n  \"Content-Type\": \"application/json\"\n}";
+              
+              // Auto-configure some basic settings
+              onNodeUpdate(selectedNode.id, {
+                config: {
+                  method: "GET",
+                  url: "https://api.productboard.com/notes",
+                  headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer YOUR_TOKEN_HERE"
+                  },
+                  timeout: 30000
+                }
+              });
               break;
+              
             case "Set":
-              aiResponse += "• Field Mapping: Map input fields to output\n• Data Types: Ensure proper type conversion\n• Expressions: Use JavaScript expressions for complex logic";
+              aiResponse += "• Field Mapping: Map input fields to output\n• Data Types: Ensure proper type conversion\n• Expressions: Use JavaScript expressions for complex logic\n\n💡 Example mapping:\n{\n  \"feature_name\": \"{{$json.title}}\",\n  \"owner_email\": \"{{$json.owner.email}}\",\n  \"created_date\": \"{{$json.createdAt}}\"\n}";
+              
+              onNodeUpdate(selectedNode.id, {
+                config: {
+                  mappings: {
+                    "feature_name": "{{$json.title}}",
+                    "owner_email": "{{$json.owner.email}}",
+                    "created_date": "{{$json.createdAt}}"
+                  }
+                }
+              });
               break;
+              
             case "Database":
               aiResponse += "• Connection: Database credentials\n• Operation: INSERT/UPDATE/SELECT\n• Table: Target table name\n• Mapping: Field to column mapping";
               break;
+              
             case "Snowflake":
               aiResponse += "• Account: Snowflake account identifier\n• Warehouse: Compute warehouse name\n• Database & Schema: Target location\n• Credentials: Username/password or key pair";
               break;
+              
             default:
               aiResponse += "• Check the node documentation for specific parameters\n• Use the configuration panel to set required fields";
           }
           
-          // Auto-configure some basic settings
-          if (selectedNode.type === "HTTP Request") {
-            onNodeUpdate(selectedNode.id, {
-              config: {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-                timeout: 30000
-              }
-            });
-          }
-          
-        } else if (userMessage.toLowerCase().includes("error") || userMessage.toLowerCase().includes("fix")) {
+        } else if (currentMessage.toLowerCase().includes("error") || currentMessage.toLowerCase().includes("fix")) {
           aiResponse = `🔍 Let me help debug your ${selectedNode.type} node:\n\n`;
           aiResponse += "Common issues:\n";
           aiResponse += "• Check authentication credentials\n";
@@ -74,32 +94,67 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
           aiResponse += "• Ensure data mapping is correct\n";
           aiResponse += "• Add error handling and retries\n\n";
           aiResponse += "💡 Tip: Enable verbose logging to see detailed error messages.";
+          
+        } else if (currentMessage.toLowerCase().includes("api") || currentMessage.toLowerCase().includes("fetch")) {
+          aiResponse = `🌐 Configuring API fetch for ${selectedNode.type}:\n\n`;
+          if (selectedNode.type === "HTTP Request") {
+            aiResponse += "Here's a complete setup for fetching data:\n\n";
+            aiResponse += "1. **URL**: Enter your API endpoint\n";
+            aiResponse += "2. **Authentication**: Add API key in headers\n";
+            aiResponse += "3. **Method**: Usually GET for fetching data\n";
+            aiResponse += "4. **Error Handling**: Add retry logic\n\n";
+            aiResponse += "✅ I've pre-configured basic settings for you!";
+            
+            onNodeUpdate(selectedNode.id, {
+              config: {
+                method: "GET",
+                url: "https://api.example.com/data",
+                headers: { 
+                  "Content-Type": "application/json",
+                  "Authorization": "Bearer YOUR_API_KEY"
+                },
+                timeout: 30000,
+                retry: 3
+              }
+            });
+          } else {
+            aiResponse += `This node type (${selectedNode.type}) is not for API fetching. Try using an HTTP Request node instead!`;
+          }
         } else {
           aiResponse = `ℹ️ About ${selectedNode.type} nodes:\n\n`;
           aiResponse += getNodeExplanation(selectedNode.type);
         }
       } else {
-        if (userMessage.toLowerCase().includes("workflow") || userMessage.toLowerCase().includes("pipeline")) {
+        if (currentMessage.toLowerCase().includes("workflow") || currentMessage.toLowerCase().includes("pipeline")) {
           aiResponse = "🚀 Workflow Best Practices:\n\n";
           aiResponse += "1. **Start Simple**: Begin with input → transform → output\n";
           aiResponse += "2. **Error Handling**: Add error nodes for resilience\n";
           aiResponse += "3. **Testing**: Test each node individually first\n";
           aiResponse += "4. **Monitoring**: Add logging and notifications\n";
           aiResponse += "5. **Documentation**: Name nodes clearly and add descriptions";
+        } else if (currentMessage.toLowerCase().includes("api") || currentMessage.toLowerCase().includes("fetch")) {
+          aiResponse = "🌐 To fetch data from APIs:\n\n";
+          aiResponse += "1. **Add HTTP Request Node**: From the palette, drag an HTTP Request node\n";
+          aiResponse += "2. **Configure URL**: Set your API endpoint\n";
+          aiResponse += "3. **Add Authentication**: Include API keys or tokens\n";
+          aiResponse += "4. **Test Connection**: Run a single node test\n\n";
+          aiResponse += "💡 Select an HTTP Request node and I'll help you configure it!";
         } else {
-          aiResponse = "🤖 I can help with workflow design, node configuration, debugging, and best practices. What would you like to know?";
+          aiResponse = "🤖 I can help with workflow design, node configuration, debugging, and best practices. What would you like to know?\n\n";
+          aiResponse += "💡 Try selecting a node first, then ask me to configure it for API fetching!";
         }
       }
       
+      console.log('AI Response generated:', aiResponse);
       setChatHistory(prev => [...prev, { role: "assistant", message: aiResponse }]);
       setIsGenerating(false);
-    }, 1500);
+    }, 1000);
   };
 
   const getNodeExplanation = (nodeType: string): string => {
     const explanations: Record<string, string> = {
-      "HTTP Request": "Makes API calls to external services. Perfect for fetching data from REST APIs, webhooks, or any HTTP endpoint.",
-      "Set": "Transforms and maps data fields. Use JavaScript expressions to manipulate data, rename fields, or perform calculations.",
+      "HTTP Request": "Makes API calls to external services. Perfect for fetching data from REST APIs, webhooks, or any HTTP endpoint. Configure the URL, method, headers, and authentication.",
+      "Set": "Transforms and maps data fields. Use JavaScript expressions to manipulate data, rename fields, or perform calculations. Essential for data transformation.",
       "Database": "Connects to SQL databases for reading/writing data. Supports MySQL, PostgreSQL, and other popular databases.",
       "CSV Read": "Reads data from CSV files. Useful for batch processing of uploaded files or scheduled data imports.",
       "Filter": "Filters data based on conditions. Only rows meeting your criteria will pass through to the next node.",
@@ -112,10 +167,10 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
   };
 
   const quickActions = [
+    { label: "Configure for API", action: "Help me configure this node to fetch data from an API" },
     { label: "Explain this node", action: "What does this node do and how should I configure it?" },
     { label: "Fix configuration", action: "Help me configure this node properly" },
-    { label: "Add error handling", action: "How can I add error handling to my workflow?" },
-    { label: "Optimize performance", action: "How can I make my workflow faster and more reliable?" }
+    { label: "Add error handling", action: "How can I add error handling to my workflow?" }
   ];
 
   return (
@@ -153,6 +208,14 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
               </div>
             </div>
           ))}
+          {isGenerating && (
+            <div className="bg-gray-700/50 border border-gray-600 mr-2 p-3 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Brain size={16} className="text-purple-400 animate-pulse" />
+                <span className="text-xs text-gray-300">AI is thinking...</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -181,9 +244,18 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
           <Textarea
             value={userMessage}
             onChange={(e) => setUserMessage(e.target.value)}
-            placeholder="Ask me anything about workflows, nodes, or configurations..."
+            placeholder={selectedNode ? 
+              `Ask about configuring your ${selectedNode.type} node...` : 
+              "Ask me anything about workflows, nodes, or configurations..."
+            }
             className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 text-sm"
             rows={3}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
           />
           <Button
             onClick={handleSendMessage}

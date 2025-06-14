@@ -73,6 +73,11 @@ const WorkflowCanvas = ({
     return iconMap[type] || '📦';
   };
 
+  const handleNodeClick = (nodeId: string) => {
+    console.log('Node clicked:', nodeId);
+    onNodeSelect(nodeId);
+  };
+
   return (
     <Card className="bg-gray-800/50 border-gray-600 h-full">
       <CardHeader>
@@ -122,10 +127,10 @@ const WorkflowCanvas = ({
                     className={`
                       relative flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
                       ${getStatusColor(node.status)}
-                      ${selectedNode === node.id ? 'ring-2 ring-purple-400' : ''}
-                      hover:scale-105
+                      ${selectedNode === node.id ? 'ring-2 ring-purple-400 bg-purple-900/20' : ''}
+                      hover:scale-105 hover:bg-purple-900/10
                     `}
-                    onClick={() => onNodeSelect(node.id)}
+                    onClick={() => handleNodeClick(node.id)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -133,6 +138,11 @@ const WorkflowCanvas = ({
                         <div>
                           <h4 className="text-white font-semibold">{node.title}</h4>
                           <p className="text-gray-400 text-sm">{node.type}</p>
+                          {selectedNode === node.id && (
+                            <p className="text-purple-300 text-xs mt-1">
+                              ✓ Selected - Configure in AI Assistant →
+                            </p>
+                          )}
                         </div>
                       </div>
                       
@@ -146,7 +156,7 @@ const WorkflowCanvas = ({
                           variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onNodeSelect(node.id);
+                            handleNodeClick(node.id);
                           }}
                         >
                           <Settings size={14} />
@@ -181,7 +191,12 @@ const WorkflowCanvas = ({
         {nodes.length > 0 && (
           <div className="mt-4 text-sm text-gray-400 flex justify-between">
             <span>{nodes.length} nodes in workflow</span>
-            <span>Click nodes to configure or delete</span>
+            <span>
+              {selectedNode ? 
+                `Node "${nodes.find(n => n.id === selectedNode)?.title}" selected` : 
+                'Click nodes to configure'
+              }
+            </span>
           </div>
         )}
       </CardContent>
