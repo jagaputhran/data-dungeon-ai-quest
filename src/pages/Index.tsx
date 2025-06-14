@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import BattleMode from "@/components/BattleMode";
+import JsonBattleMode from "@/components/JsonBattleMode";
 import Scoreboard from "@/components/Scoreboard";
 import LearningResources from "@/components/LearningResources";
-import { Sword, Brain, Database } from "lucide-react";
+import { Sword, Brain, Database, FileJson } from "lucide-react";
 
 const Index = () => {
   const [totalScore, setTotalScore] = useState(0);
@@ -48,9 +49,13 @@ const Index = () => {
         <Card className="bg-black/20 backdrop-blur-sm border-gray-600">
           <CardContent className="p-6">
             <Tabs defaultValue="battle" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="battle" className="text-lg">
-                  🎮 Battle Mode
+                  🎮 CSV Battle
+                </TabsTrigger>
+                <TabsTrigger value="json-battle" className="text-lg">
+                  <FileJson className="mr-1" size={16} />
+                  JSON Battle
                 </TabsTrigger>
                 <TabsTrigger value="scoreboard" className="text-lg">
                   🏆 Scoreboard
@@ -62,6 +67,10 @@ const Index = () => {
 
               <TabsContent value="battle">
                 <BattleMode onScoreUpdate={updateScore} />
+              </TabsContent>
+
+              <TabsContent value="json-battle">
+                <JsonBattleMode onScoreUpdate={updateScore} />
               </TabsContent>
 
               <TabsContent value="scoreboard">
