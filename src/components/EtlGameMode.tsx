@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import DatasetDisplay from "@/components/DatasetDisplay";
 import { 
   Database, 
   ArrowRight, 
@@ -27,7 +29,9 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
-  BarChart3
+  BarChart3,
+  Upload,
+  Download
 } from "lucide-react";
 
 interface EtlGameModeProps {
@@ -43,7 +47,111 @@ const EtlGameMode = ({ onScoreUpdate }: EtlGameModeProps) => {
   const [isSimulating, setIsSimulating] = useState(false);
   const [deploymentStatus, setDeploymentStatus] = useState<string | null>(null);
   const [simulationResults, setSimulationResults] = useState<any | null>(null);
+  const [uploadedData, setUploadedData] = useState<string | null>(null);
+  const [selectedSampleData, setSelectedSampleData] = useState<string | null>(null);
+  const [dataFileName, setDataFileName] = useState<string>("");
   const { toast } = useToast();
+
+  // Sample datasets for educational purposes
+  const sampleDatasets = {
+    sales: {
+      name: "E-commerce Sales Data",
+      description: "Sample sales data with missing values and inconsistent formats",
+      data: `order_id,customer_name,product,price,order_date,status,email
+1001,John Smith,Laptop,999.99,2024-01-15,completed,john@email.com
+1002,Jane Doe,Mouse,25.50,01/16/2024,pending,jane@email.com
+1003,,Keyboard,75.00,2024-01-17,cancelled,
+1004,Bob Johnson,Monitor,,2024/01/18,completed,bob@email.com
+1005,Alice Brown,Headphones,150.00,19-01-2024,completed,alice@email.com
+1006,Charlie Wilson,Webcam,89.99,,pending,charlie@email.com`
+    },
+    employees: {
+      name: "Employee Database",
+      description: "HR data with various data quality issues",
+      data: `emp_id,name,department,salary,hire_date,manager_id,location
+101,Sarah Connor,Engineering,95000,2023-03-15,201,New York
+102,John Connor,Marketing,,2023-04-20,202,Los Angeles
+103,,Sales,45000,2023/05/10,203,Chicago
+104,Kyle Reese,Engineering,87000,15-06-2023,201,New York
+105,Miles Dyson,R&D,120000,2023-07-01,,San Francisco
+106,T-800,Security,65000,2023-08-15,204,`
+    },
+    inventory: {
+      name: "Warehouse Inventory",
+      description: "Inventory data with missing quantities and categories",
+      data: `sku,product_name,category,quantity,unit_price,supplier,last_updated
+SKU001,Gaming Laptop,Electronics,50,1299.99,TechCorp,2024-01-20
+SKU002,Office Chair,,25,199.99,FurniturePlus,2024-01-19
+SKU003,Wireless Mouse,Electronics,,29.99,TechCorp,
+SKU004,Standing Desk,Furniture,15,399.99,,2024-01-18
+SKU005,,Electronics,100,15.99,GadgetWorld,2024-01-21
+SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload a CSV file.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const csvData = e.target?.result as string;
+        setUploadedData(csvData);
+        setSelectedSampleData(null);
+        setDataFileName(file.name);
+        
+        toast({
+          title: "✅ Data Uploaded!",
+          description: `Successfully loaded ${file.name}`,
+        });
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const loadSampleData = (datasetKey: string) => {
+    const dataset = sampleDatasets[datasetKey as keyof typeof sampleDatasets];
+    setSelectedSampleData(dataset.data);
+    setUploadedData(null);
+    setDataFileName(dataset.name);
+    
+    toast({
+      title: "📊 Sample Data Loaded!",
+      description: `Loaded ${dataset.name} for practice`,
+    });
+  };
+
+  const getCurrentData = () => {
+    return uploadedData || selectedSampleData;
+  };
+
+  const getDataStats = (data: string) => {
+    const lines = data.trim().split('\n');
+    const headers = lines[0].split(',');
+    const dataRows = lines.slice(1);
+    
+    let emptyCount = 0;
+    dataRows.forEach(row => {
+      row.split(',').forEach(cell => {
+        if (!cell.trim()) emptyCount++;
+      });
+    });
+
+    return {
+      totalRecords: dataRows.length,
+      totalFields: headers.length,
+      emptyFields: emptyCount,
+      completenessRate: Math.round(((dataRows.length * headers.length - emptyCount) / (dataRows.length * headers.length)) * 100)
+    };
+  };
 
   const etlStages = {
     extract: {
@@ -193,8 +301,18 @@ const EtlGameMode = ({ onScoreUpdate }: EtlGameModeProps) => {
       return;
     }
 
+    const currentData = getCurrentData();
+    let dataContext = "";
+    if (currentData) {
+      const stats = getDataStats(currentData);
+      dataContext = `\n# Data Context: Working with ${dataFileName}
+# Records: ${stats.totalRecords}, Fields: ${stats.totalFields}
+# Data Quality: ${stats.completenessRate}% complete (${stats.emptyFields} empty fields detected)
+`;
+    }
+
     // Simulate AI pipeline generation
-    const mockPipeline = `
+    const mockPipeline = `${dataContext}
 # AI-Generated ETL Pipeline for: "${naturalLanguagePrompt}"
 
 from pyspark.sql import SparkSession
@@ -205,7 +323,7 @@ from pyspark.ml.feature import Imputer
 spark = SparkSession.builder.appName("JAGA_AutoETL").getOrCreate()
 
 # EXTRACT: Load data based on your request
-df = spark.read.option("header", "true").csv("your_data_source.csv")
+${currentData ? `df = spark.read.option("header", "true").csv("${dataFileName}")` : `df = spark.read.option("header", "true").csv("your_data_source.csv")`}
 
 # TRANSFORM: AI-suggested transformations
 # 1. Handle missing values with intelligent imputation
@@ -293,19 +411,51 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
     // Simulate pipeline execution
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const mockResults = {
-      status: "SUCCESS",
-      executionTime: "2.34 seconds",
-      recordsProcessed: 15420,
-      recordsCleaned: 14892,
-      recordsSkipped: 528,
-      dataQualityScore: 96.8,
-      stages: [
-        { name: "Extract", status: "✅ Success", duration: "0.45s", records: 15420 },
-        { name: "Transform", status: "✅ Success", duration: "1.23s", records: 14892 },
-        { name: "Load", status: "✅ Success", duration: "0.66s", records: 14892 }
-      ]
-    };
+    const currentData = getCurrentData();
+    let mockResults;
+
+    if (currentData) {
+      // Use actual data stats when available
+      const stats = getDataStats(currentData);
+      const processedRecords = stats.totalRecords;
+      const cleanedRecords = Math.floor(processedRecords * (stats.completenessRate / 100));
+      const skippedRecords = processedRecords - cleanedRecords;
+
+      mockResults = {
+        status: "SUCCESS",
+        dataSource: uploadedData ? "Uploaded Data" : "Sample Data",
+        dataFile: dataFileName,
+        executionTime: "1.87 seconds",
+        recordsProcessed: processedRecords,
+        recordsCleaned: cleanedRecords,
+        recordsSkipped: skippedRecords,
+        dataQualityScore: stats.completenessRate,
+        isRealData: true,
+        stages: [
+          { name: "Extract", status: "✅ Success", duration: "0.32s", records: processedRecords },
+          { name: "Transform", status: "✅ Success", duration: "0.98s", records: cleanedRecords },
+          { name: "Load", status: "✅ Success", duration: "0.57s", records: cleanedRecords }
+        ]
+      };
+    } else {
+      // Use mock data when no real data is available
+      mockResults = {
+        status: "SUCCESS",
+        dataSource: "Simulated Data",
+        dataFile: "demo_dataset.csv",
+        executionTime: "2.34 seconds",
+        recordsProcessed: 15420,
+        recordsCleaned: 14892,
+        recordsSkipped: 528,
+        dataQualityScore: 96.8,
+        isRealData: false,
+        stages: [
+          { name: "Extract", status: "✅ Success", duration: "0.45s", records: 15420 },
+          { name: "Transform", status: "✅ Success", duration: "1.23s", records: 14892 },
+          { name: "Load", status: "✅ Success", duration: "0.66s", records: 14892 }
+        ]
+      };
+    }
 
     setSimulationResults(mockResults);
     setIsSimulating(false);
@@ -369,6 +519,89 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
         </CardContent>
       </Card>
 
+      {/* Data Upload Section */}
+      <Card className="bg-gradient-to-r from-green-900/50 to-teal-900/50 border-green-400">
+        <CardHeader>
+          <CardTitle className="text-white text-2xl flex items-center gap-2">
+            <Upload className="w-6 h-6" />
+            📊 Data Playground
+          </CardTitle>
+          <p className="text-gray-200">
+            Upload your own CSV data or use our sample datasets to practice ETL operations!
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* File Upload */}
+            <div className="space-y-4">
+              <h4 className="text-white font-bold">📁 Upload Your Data</h4>
+              <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
+                <Input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+                <p className="text-gray-400 text-sm mt-2">Upload a CSV file to work with real data</p>
+              </div>
+            </div>
+
+            {/* Sample Datasets */}
+            <div className="space-y-4">
+              <h4 className="text-white font-bold">🎓 Sample Datasets</h4>
+              <div className="space-y-2">
+                {Object.entries(sampleDatasets).map(([key, dataset]) => (
+                  <Button
+                    key={key}
+                    onClick={() => loadSampleData(key)}
+                    variant="outline"
+                    className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    <div className="text-left">
+                      <div className="font-medium">{dataset.name}</div>
+                      <div className="text-xs opacity-75">{dataset.description}</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Display Current Data */}
+          {getCurrentData() && (
+            <div className="mt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Database className="w-5 h-5 text-green-400" />
+                <span className="text-green-400 font-bold">Current Dataset: {dataFileName}</span>
+                {!uploadedData && (
+                  <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                    Sample Data
+                  </Badge>
+                )}
+              </div>
+              <DatasetDisplay 
+                data={getCurrentData()!} 
+                title={`Preview: ${dataFileName}`} 
+              />
+              <div className="mt-2 flex gap-4 text-sm text-gray-400">
+                {(() => {
+                  const stats = getDataStats(getCurrentData()!);
+                  return (
+                    <>
+                      <span>{stats.totalRecords} records</span>
+                      <span>{stats.totalFields} fields</span>
+                      <span>{stats.completenessRate}% complete</span>
+                      <span>{stats.emptyFields} missing values</span>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Game Map */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Object.entries(etlStages).map(([stageKey, stage]) => (
@@ -419,6 +652,11 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
           </CardTitle>
           <p className="text-gray-200">
             Speak your ETL needs and let JAGA's AI automatically generate a complete pipeline!
+            {getCurrentData() && (
+              <Badge className="ml-2 bg-green-600">
+                ✅ Data Loaded: {dataFileName}
+              </Badge>
+            )}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -497,7 +735,25 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
                   <div className="flex items-center gap-2 mb-3">
                     <BarChart3 className="w-5 h-5 text-blue-400" />
                     <span className="text-blue-400 font-bold">Simulation Results</span>
+                    {!simulationResults.isRealData && (
+                      <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        Demo Data
+                      </Badge>
+                    )}
                   </div>
+                  
+                  <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
+                    <p className="text-gray-300 text-sm">
+                      <strong>Data Source:</strong> {simulationResults.dataSource} ({simulationResults.dataFile})
+                      {!simulationResults.isRealData && (
+                        <span className="text-yellow-400 ml-2">
+                          ⚠️ This is simulated data. Upload your own CSV or select sample data for realistic results.
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-400">{simulationResults.recordsProcessed.toLocaleString()}</p>
