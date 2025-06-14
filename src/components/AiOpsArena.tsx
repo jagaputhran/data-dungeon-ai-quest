@@ -19,7 +19,7 @@ const AiOpsArena = ({ onScoreUpdate }: AiOpsArenaProps) => {
   const [completedMissions, setCompletedMissions] = useState<number[]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<any>(null);
-  const [generatedCode, setGeneratedCode] = useState<any>(null);
+  const [generatedCode, setGeneratedCode] = useState<Record<string, string> | null>(null);
 
   const mission = aiOpsMissions[currentMission];
   const progressPercentage = (completedMissions.length / aiOpsMissions.length) * 100;
@@ -30,8 +30,85 @@ const AiOpsArena = ({ onScoreUpdate }: AiOpsArenaProps) => {
     setGeneratedCode(null);
   };
 
-  const handleCodeGeneration = (code: any) => {
+  const handleCodeGeneration = (code: Record<string, string>) => {
     setGeneratedCode(code);
+  };
+
+  // Realistic validation functions
+  const validateDockerfile = (dockerfile: string): { valid: boolean; issues: string[] } => {
+    const issues: string[] = [];
+    
+    if (!dockerfile.includes('FROM')) {
+      issues.push('Missing base image declaration');
+    }
+    if (!dockerfile.includes('WORKDIR')) {
+      issues.push('No working directory set - potential security risk');
+    }
+    if (dockerfile.includes('RUN npm install') && !dockerfile.includes('package*.json')) {
+      issues.push('Installing dependencies without copying package files first');
+    }
+    if (!dockerfile.includes('USER') && !dockerfile.includes('--chown')) {
+      issues.push('Running as root user - security vulnerability');
+    }
+    
+    return { valid: issues.length === 0, issues };
+  };
+
+  const validateKubernetes = (yaml: string): { valid: boolean; issues: string[] } => {
+    const issues: string[] = [];
+    
+    if (!yaml.includes('apiVersion')) {
+      issues.push('Missing apiVersion specification');
+    }
+    if (!yaml.includes('metadata:') || !yaml.includes('name:')) {
+      issues.push('Missing metadata or name field');
+    }
+    if (yaml.includes('resources:') && !yaml.includes('limits:')) {
+      issues.push('Resource requests without limits - potential resource exhaustion');
+    }
+    if (!yaml.includes('readinessProbe') && !yaml.includes('livenessProbe')) {
+      issues.push('Missing health checks - deployment reliability risk');
+    }
+    if (yaml.includes('image:') && yaml.includes(':latest')) {
+      issues.push('Using :latest tag - not recommended for production');
+    }
+    
+    return { valid: issues.length === 0, issues };
+  };
+
+  const validateTerraform = (tf: string): { valid: boolean; issues: string[] } => {
+    const issues: string[] = [];
+    
+    if (!tf.includes('provider')) {
+      issues.push('No provider configuration found');
+    }
+    if (!tf.includes('tags')) {
+      issues.push('Resources missing tags - violates compliance standards');
+    }
+    if (tf.includes('0.0.0.0/0') && tf.includes('ingress')) {
+      issues.push('Security group allows all inbound traffic - security risk');
+    }
+    
+    return { valid: issues.length === 0, issues };
+  };
+
+  const validateCIPipeline = (yaml: string): { valid: boolean; issues: string[] } => {
+    const issues: string[] = [];
+    
+    if (!yaml.includes('test') && !yaml.includes('Test')) {
+      issues.push('No testing stage found in pipeline');
+    }
+    if (!yaml.includes('security') && !yaml.includes('scan')) {
+      issues.push('Missing security scanning step');
+    }
+    if (!yaml.includes('artifact') && !yaml.includes('cache')) {
+      issues.push('No artifact caching - slow build times');
+    }
+    if (yaml.includes('password') || yaml.includes('token')) {
+      issues.push('Secrets hardcoded in pipeline - use secret management');
+    }
+    
+    return { valid: issues.length === 0, issues };
   };
 
   const handleSimulation = async () => {
@@ -39,25 +116,119 @@ const AiOpsArena = ({ onScoreUpdate }: AiOpsArenaProps) => {
     
     setIsSimulating(true);
     
-    // Simulate deployment process
+    // Simulate realistic DevOps validation and deployment
     setTimeout(() => {
-      const success = Math.random() > 0.3; // 70% success rate
+      const validationResults: any = {};
+      const allLogs: string[] = [];
+      let overallScore = mission.baseScore;
+      let hasErrors = false;
+
+      // Step 1: Code Validation
+      allLogs.push('🔍 Starting DevOps validation pipeline...');
+      allLogs.push('');
+
+      if (generatedCode.dockerfile) {
+        const dockerValidation = validateDockerfile(generatedCode.dockerfile);
+        validationResults.docker = dockerValidation;
+        
+        if (dockerValidation.valid) {
+          allLogs.push('✅ Dockerfile validation passed');
+        } else {
+          allLogs.push('❌ Dockerfile validation failed:');
+          dockerValidation.issues.forEach(issue => {
+            allLogs.push(`   • ${issue}`);
+          });
+          hasErrors = true;
+          overallScore -= 20;
+        }
+      }
+
+      if (generatedCode.kubernetes) {
+        const k8sValidation = validateKubernetes(generatedCode.kubernetes);
+        validationResults.kubernetes = k8sValidation;
+        
+        if (k8sValidation.valid) {
+          allLogs.push('✅ Kubernetes manifests validated');
+        } else {
+          allLogs.push('❌ Kubernetes validation failed:');
+          k8sValidation.issues.forEach(issue => {
+            allLogs.push(`   • ${issue}`);
+          });
+          hasErrors = true;
+          overallScore -= 30;
+        }
+      }
+
+      if (generatedCode.terraform) {
+        const tfValidation = validateTerraform(generatedCode.terraform);
+        validationResults.terraform = tfValidation;
+        
+        if (tfValidation.valid) {
+          allLogs.push('✅ Terraform configuration validated');
+        } else {
+          allLogs.push('❌ Terraform validation failed:');
+          tfValidation.issues.forEach(issue => {
+            allLogs.push(`   • ${issue}`);
+          });
+          hasErrors = true;
+          overallScore -= 25;
+        }
+      }
+
+      if (generatedCode.githubActions) {
+        const ciValidation = validateCIPipeline(generatedCode.githubActions);
+        validationResults.ci = ciValidation;
+        
+        if (ciValidation.valid) {
+          allLogs.push('✅ CI/CD pipeline validated');
+        } else {
+          allLogs.push('❌ CI/CD validation failed:');
+          ciValidation.issues.forEach(issue => {
+            allLogs.push(`   • ${issue}`);
+          });
+          hasErrors = true;
+          overallScore -= 15;
+        }
+      }
+
+      // Step 2: Deployment Simulation
+      allLogs.push('');
+      allLogs.push('🚀 Simulating deployment process...');
+      
+      if (!hasErrors) {
+        allLogs.push('📦 Building container image...');
+        allLogs.push('🔧 Applying infrastructure changes...');
+        allLogs.push('☸️ Deploying to Kubernetes cluster...');
+        allLogs.push('🔍 Running health checks...');
+        allLogs.push('📊 Monitoring deployment status...');
+        allLogs.push('');
+        allLogs.push('✅ Deployment completed successfully!');
+        allLogs.push('🎉 All services are running and healthy');
+        
+        // Bonus points for clean deployment
+        overallScore += 25;
+      } else {
+        allLogs.push('⚠️ Deployment would fail with current configuration');
+        allLogs.push('💡 Fix validation issues and try again');
+        overallScore = Math.max(overallScore, 10); // Minimum score for effort
+      }
+
       const result = {
-        success,
-        logs: success 
-          ? [`✅ ${mission.name} completed successfully!`, "🚀 Deployment ready", "📊 All checks passed"]
-          : [`❌ Deployment failed`, "🔧 Configuration error detected", "💡 AI suggests: Check your YAML syntax"],
-        score: success ? mission.baseScore : Math.floor(mission.baseScore * 0.3)
+        success: !hasErrors,
+        logs: allLogs,
+        score: Math.max(overallScore, 0),
+        validationResults,
+        deploymentTime: !hasErrors ? `${Math.floor(Math.random() * 120) + 60}s` : null
       };
       
       setSimulationResult(result);
       setIsSimulating(false);
       
-      if (success && !completedMissions.includes(currentMission)) {
+      if (result.success && !completedMissions.includes(currentMission)) {
         setCompletedMissions([...completedMissions, currentMission]);
         onScoreUpdate(result.score);
       }
-    }, 2000);
+    }, 3000); // Longer simulation time for realism
   };
 
   return (
@@ -124,7 +295,7 @@ const AiOpsArena = ({ onScoreUpdate }: AiOpsArenaProps) => {
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Zap size={20} />
-              Deployment Simulator
+              DevOps Simulator
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -183,8 +354,8 @@ const AiOpsArena = ({ onScoreUpdate }: AiOpsArenaProps) => {
               <h4 className="text-white font-semibold mb-2">Scoring</h4>
               <div className="text-gray-300 text-sm space-y-1">
                 <div>Base Score: {mission.baseScore} XP</div>
-                <div>Bonus: Code Quality (+50 XP)</div>
-                <div>Bonus: Fast Completion (+25 XP)</div>
+                <div>Bonus: Clean Deployment (+25 XP)</div>
+                <div>Penalty: Validation Errors (-15 to -30 XP)</div>
               </div>
             </div>
           </div>
