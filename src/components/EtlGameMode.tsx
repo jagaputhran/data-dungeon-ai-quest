@@ -304,7 +304,7 @@ SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
       case 'extract-schema-detection':
         return {
           type: 'multiple-choice',
-          question: `Looking at the ${dataFileName} dataset, how many columns does it have?`,
+          question: `Auto-detecting schema for ${dataFileName}. How many columns does this dataset have?`,
           options: [
             `${headers.length - 1} columns`,
             `${headers.length} columns`,
@@ -312,7 +312,7 @@ SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
             `${headers.length + 2} columns`
           ],
           correctAnswer: 1,
-          explanation: `The dataset has ${headers.length} columns: ${headers.join(', ')}`,
+          explanation: `Schema detection identified ${headers.length} columns: ${headers.join(', ')}. This helps automate data extraction setup.`,
           dataPreview: currentData.split('\n').slice(0, 4).join('\n')
         };
 
@@ -322,7 +322,7 @@ SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
         }, 0);
         return {
           type: 'multiple-choice',
-          question: `How many empty/missing values are there in this dataset?`,
+          question: `Data source discovery found quality issues. How many missing/empty values need attention in this dataset?`,
           options: [
             `${emptyFields - 2} missing values`,
             `${emptyFields} missing values`,
@@ -330,29 +330,43 @@ SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
             `${emptyFields + 3} missing values`
           ],
           correctAnswer: 1,
-          explanation: `There are ${emptyFields} missing values in the dataset. This is important for data quality assessment.`,
+          explanation: `Source discovery identified ${emptyFields} missing values that need handling during extraction. This affects data completeness planning.`,
           dataPreview: currentData.split('\n').slice(0, 4).join('\n')
         };
 
       case 'transform-column-normalization':
-        // Find inconsistent date formats
+        // Find inconsistent formats in the data
         const dateColumn = headers.find(h => h.toLowerCase().includes('date'));
         if (dateColumn) {
           return {
             type: 'multiple-choice',
-            question: `The ${dateColumn} column has inconsistent formats. Which transformation should be applied?`,
+            question: `Column normalization detected inconsistent date formats in "${dateColumn}". What's the best standardization approach?`,
             options: [
-              'Convert all dates to YYYY-MM-DD format',
-              'Leave dates as they are',
-              'Remove the date column',
-              'Convert to timestamp format'
+              'Convert all dates to YYYY-MM-DD ISO format',
+              'Keep original mixed formats for flexibility',
+              'Remove all date columns to avoid issues',
+              'Convert to Unix timestamps only'
             ],
             correctAnswer: 0,
-            explanation: 'Standardizing date formats to YYYY-MM-DD ensures consistency and prevents errors in downstream processing.',
-            dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+            explanation: 'ISO date format (YYYY-MM-DD) ensures consistency across systems and prevents parsing errors in downstream processes.',
+            dataPreview: currentData.split('\n').slice(0, 6).join('\n')
           };
         }
-        break;
+        
+        // Fallback for non-date normalization
+        return {
+          type: 'multiple-choice',
+          question: `Column normalization analysis: Which transformation strategy works best for standardizing text fields?`,
+          options: [
+            'Convert all text to lowercase and trim whitespace',
+            'Leave text fields exactly as they are',
+            'Convert everything to uppercase only',
+            'Remove all special characters completely'
+          ],
+          correctAnswer: 0,
+          explanation: 'Lowercase conversion and whitespace trimming creates consistent text formatting without losing important data.',
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
 
       case 'transform-null-imputation':
         const nullFields = headers.filter(header => {
@@ -364,52 +378,177 @@ SKU006,Coffee Maker,Appliances,8,89.99,HomeGoods,2024/01/20`
         });
         
         if (nullFields.length > 0) {
+          const targetField = nullFields[0];
           return {
             type: 'multiple-choice',
-            question: `The column "${nullFields[0]}" has missing values. What's the best imputation strategy?`,
+            question: `AI Null Imputation detected missing values in "${targetField}". What's the smartest imputation strategy?`,
             options: [
-              'Fill with zeros',
-              'Remove rows with missing values',
-              'Fill with mean/mode based on data type',
-              'Leave as is'
+              'Replace all nulls with zero values',
+              'Delete all rows containing any null values',
+              'Use mean for numeric, mode for categorical data',
+              'Leave all null values unchanged'
             ],
             correctAnswer: 2,
-            explanation: 'Using mean for numerical data and mode for categorical data is a standard approach that preserves data distribution.',
-            dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+            explanation: 'AI-powered imputation uses statistical methods: mean for numbers preserves distribution, mode for categories maintains most common patterns.',
+            dataPreview: currentData.split('\n').slice(0, 6).join('\n')
           };
         }
         break;
 
-      case 'load-schema-optimization':
+      case 'transform-smart-joins':
+        // Look for potential foreign key relationships
+        const idColumns = headers.filter(h => h.toLowerCase().includes('id'));
+        if (idColumns.length > 0) {
+          return {
+            type: 'multiple-choice',
+            question: `Smart Joins AI detected "${idColumns[0]}" as a key field. How should this be used for joining with related tables?`,
+            options: [
+              'Use as PRIMARY KEY for main table joins',
+              'Use as FOREIGN KEY to reference other tables',
+              'Ignore ID fields in join operations',
+              'Both PRIMARY and FOREIGN KEY depending on context'
+            ],
+            correctAnswer: 3,
+            explanation: 'Smart joins recognize that ID fields can serve as both primary keys (unique identifiers) and foreign keys (references), depending on the join context.',
+            dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+          };
+        }
+        
         return {
           type: 'multiple-choice',
-          question: `Which column should be the primary key for this dataset?`,
+          question: `Smart Joins analysis: What's the recommended join strategy when combining multiple data sources?`,
+          options: [
+            'Always use INNER JOIN to avoid null values',
+            'Always use LEFT JOIN to keep all records',
+            'Choose join type based on business requirements',
+            'Use CROSS JOIN for maximum data combinations'
+          ],
+          correctAnswer: 2,
+          explanation: 'Smart join recommendations depend on whether you need all records (LEFT/RIGHT), only matching records (INNER), or all combinations (FULL OUTER).',
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'transform-anomaly-detection':
+        // Look for potential anomalies in numeric data
+        const numericColumns = headers.filter(h => {
+          return dataRows.some(row => {
+            const values = row.split(',');
+            const index = headers.indexOf(h);
+            const value = values[index];
+            return value && !isNaN(parseFloat(value));
+          });
+        });
+        
+        if (numericColumns.length > 0) {
+          return {
+            type: 'multiple-choice',
+            question: `Anomaly Detection found unusual patterns in "${numericColumns[0]}". What should trigger an anomaly alert?`,
+            options: [
+              'Values that are more than 3 standard deviations from mean',
+              'Any value that appears only once in the dataset',
+              'All values above the dataset average',
+              'Only negative numbers in the data'
+            ],
+            correctAnswer: 0,
+            explanation: 'Statistical anomaly detection uses the 3-sigma rule: values beyond 3 standard deviations are statistically unusual and likely anomalies.',
+            dataPreview: currentData.split('\n').slice(0, 6).join('\n')
+          };
+        }
+        
+        return {
+          type: 'multiple-choice',
+          question: `Anomaly Detection scan complete. Which pattern indicates a data quality issue?`,
+          options: [
+            'Consistent data formats across all records',
+            'Sudden spikes or drops in expected value ranges',
+            'Normal distribution of numeric values',
+            'Complete data with no missing fields'
+          ],
+          correctAnswer: 1,
+          explanation: 'Anomaly detection flags unexpected spikes, drops, or outliers that deviate from normal data patterns and may indicate errors or fraud.',
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'transform-semantic-tagging':
+        return {
+          type: 'multiple-choice',
+          question: `Semantic Tagging AI analyzed your data. Which field type classification is most accurate for email-like data?`,
+          options: [
+            'Tag as "CONTACT_INFO" with email validation rules',
+            'Tag as "TEXT_STRING" with no special handling',
+            'Tag as "IDENTIFIER" like an ID number',
+            'Tag as "SENSITIVE_DATA" requiring encryption'
+          ],
+          correctAnswer: 0,
+          explanation: 'Semantic tagging recognizes email patterns and applies appropriate validation, formatting, and privacy rules for contact information.',
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'load-schema-optimization':
+        const potentialPrimaryKey = headers[0]; // Usually first column is ID
+        return {
+          type: 'multiple-choice',
+          question: `Schema Optimization for loading: Which column should be the PRIMARY KEY for efficient data retrieval?`,
           options: headers.slice(0, 4),
           correctAnswer: 0,
-          explanation: `The first column "${headers[0]}" typically serves as a unique identifier and should be the primary key.`,
+          explanation: `"${potentialPrimaryKey}" is the optimal primary key as it provides unique identification for efficient indexing and data retrieval operations.`,
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'load-auto-documentation':
+        const totalRecords = dataRows.length;
+        return {
+          type: 'multiple-choice',
+          question: `Auto Documentation generated metadata. What's the best description for this ${totalRecords}-record dataset?`,
+          options: [
+            `Small dataset with ${totalRecords} records for testing purposes`,
+            `Production dataset with ${totalRecords} business records requiring monitoring`,
+            `Archive dataset with ${totalRecords} historical records`,
+            `Temporary dataset with ${totalRecords} records for one-time analysis`
+          ],
+          correctAnswer: 1,
+          explanation: 'Auto-documentation categorizes datasets based on size, usage patterns, and business context for proper governance and monitoring.',
+          dataPreview: currentData.split('\n').slice(0, 4).join('\n')
+        };
+
+      case 'load-drift-detection':
+        return {
+          type: 'multiple-choice',
+          question: `Drift Detection Battle: Schema changes detected! What indicates the most critical schema drift?`,
+          options: [
+            'New optional columns added to existing tables',
+            'Primary key column data type changed from INT to STRING',
+            'Column order rearranged but same data types',
+            'New indexes added for performance optimization'
+          ],
+          correctAnswer: 1,
+          explanation: 'Primary key data type changes break referential integrity and require immediate attention, while other changes are less critical.',
           dataPreview: currentData.split('\n').slice(0, 4).join('\n')
         };
 
       case 'qa-test-generation':
-        const totalRecords = dataRows.length;
+        const completenessRate = Math.round(((dataRows.length * headers.length - dataRows.reduce((count, row) => {
+          return count + row.split(',').filter(cell => !cell.trim()).length;
+        }, 0)) / (dataRows.length * headers.length)) * 100);
+        
         return {
           type: 'multiple-choice',
-          question: `What quality check should be performed first on this dataset?`,
+          question: `AI Test Case Generator created quality tests. What's the priority test for ${completenessRate}% complete data?`,
           options: [
-            'Check for duplicate records',
-            'Validate data types',
-            'Check for missing values',
-            'All of the above'
+            'Test only for duplicate primary keys',
+            'Test data completeness and missing value patterns',
+            'Test only for correct data types',
+            'Test only for referential integrity'
           ],
-          correctAnswer: 3,
-          explanation: 'Comprehensive data quality checks should include duplicates, data types, and missing values validation.',
+          correctAnswer: 1,
+          explanation: `With ${completenessRate}% completeness, testing missing value patterns helps identify systematic data quality issues affecting reliability.`,
           dataPreview: currentData.split('\n').slice(0, 4).join('\n')
         };
 
       default:
         return {
           type: 'multiple-choice',
-          question: `How many records are in the ${dataFileName} dataset?`,
+          question: `Basic data analysis: How many data records are in the ${dataFileName} dataset?`,
           options: [
             `${dataRows.length - 1} records`,
             `${dataRows.length} records`,
@@ -1017,7 +1156,7 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
                   ) : (
                     <Eye className="w-4 h-4 mr-2" />
                   )}
-                  {isSimulating ? "Simulating..." : "Simulate Run"}
+                  {isSimulating ? "Simulate Run..." : "Simulate Run"}
                 </Button>
               </div>
 
