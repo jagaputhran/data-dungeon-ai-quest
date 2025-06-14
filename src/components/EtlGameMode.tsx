@@ -711,13 +711,13 @@ print(f"Pipeline completed successfully! Processed {row_count} records.")
                       variant={selectedAnswer === index.toString() ? "default" : "outline"}
                       className={`w-full justify-start text-left p-4 h-auto ${
                         selectedAnswer === index.toString() 
-                          ? "bg-blue-600 text-white" 
-                          : "border-gray-600 text-gray-300 hover:bg-gray-700"
+                          ? "bg-blue-600 text-white border-blue-500" 
+                          : "bg-gray-800 border-gray-500 text-white hover:bg-gray-700 hover:border-gray-400"
                       }`}
                       disabled={showResult}
                     >
-                      <span className="font-bold mr-3">{String.fromCharCode(65 + index)}.</span>
-                      {option}
+                      <span className="font-bold mr-3 text-yellow-400">{String.fromCharCode(65 + index)}.</span>
+                      <span className="text-white">{option}</span>
                     </Button>
                   ))}
                 </div>
