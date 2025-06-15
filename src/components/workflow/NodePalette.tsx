@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Database, Globe, Code, Zap } from "lucide-react";
+import { Plus, Database, Globe, Code, Zap, Filter } from "lucide-react";
 
 interface NodePaletteProps {
   onNodeSelect: (nodeType: string, position: { x: number; y: number }) => void;
@@ -12,25 +12,30 @@ interface NodePaletteProps {
 const NodePalette = ({ onNodeSelect }: NodePaletteProps) => {
   const nodeCategories = {
     input: [
-      { type: "HTTP Request", icon: "🌐", description: "Fetch data from APIs" },
+      { type: "HTTP Request", icon: "🌐", description: "Fetch data from any API/website" },
       { type: "CSV Read", icon: "📄", description: "Read CSV files" },
-      { type: "Webhook", icon: "📡", description: "Receive webhooks" },
+      { type: "JSON API", icon: "📡", description: "REST API calls" },
+      { type: "Webhook", icon: "📨", description: "Receive webhooks" },
     ],
     transform: [
-      { type: "Set", icon: "🔧", description: "Map and transform data" },
-      { type: "Filter", icon: "🔍", description: "Filter data rows" },
+      { type: "Set", icon: "🔧", description: "Map and transform fields" },
       { type: "Merge", icon: "🔗", description: "Combine datasets" },
+      { type: "Split", icon: "✂️", description: "Split data arrays" },
       { type: "Code", icon: "💻", description: "Custom JavaScript" },
     ],
     logic: [
+      { type: "Filter", icon: "🔍", description: "Filter rows by conditions" },
+      { type: "Advanced Filter", icon: "🎯", description: "Complex multi-condition filters" },
       { type: "If", icon: "🔀", description: "Conditional branching" },
-      { type: "Switch", icon: "🔀", description: "Multiple conditions" },
+      { type: "Switch", icon: "⚡", description: "Multiple conditions" },
       { type: "Wait", icon: "⏰", description: "Add delays" },
       { type: "Error Trigger", icon: "⚠️", description: "Handle errors" },
     ],
     output: [
-      { type: "Database", icon: "🗄️", description: "Store in database" },
+      { type: "Database", icon: "🗄️", description: "Store in SQL database" },
+      { type: "NoSQL", icon: "📊", description: "Store in NoSQL database" },
       { type: "Snowflake", icon: "❄️", description: "Load to Snowflake" },
+      { type: "CSV Export", icon: "📁", description: "Export to CSV" },
       { type: "Slack", icon: "💬", description: "Send to Slack" },
       { type: "Email", icon: "📧", description: "Send emails" },
     ],
@@ -42,7 +47,6 @@ const NodePalette = ({ onNodeSelect }: NodePaletteProps) => {
   };
 
   const handleNodeAdd = (nodeType: string) => {
-    // Add node at a default position - in a real implementation, this could be drag & drop
     onNodeSelect(nodeType, { x: 0, y: 0 });
   };
 
@@ -69,7 +73,7 @@ const NodePalette = ({ onNodeSelect }: NodePaletteProps) => {
           
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="logic" className="text-xs">
-              <Zap size={14} className="mr-1" />
+              <Filter size={14} className="mr-1" />
               Logic
             </TabsTrigger>
             <TabsTrigger value="output" className="text-xs">
@@ -107,10 +111,9 @@ const NodePalette = ({ onNodeSelect }: NodePaletteProps) => {
         </Tabs>
 
         <div className="mt-6 p-3 bg-purple-900/20 rounded-lg border border-purple-500/30">
-          <h4 className="text-white text-sm font-semibold mb-2">💡 Quick Tip</h4>
+          <h4 className="text-white text-sm font-semibold mb-2">💡 Complete Pipeline</h4>
           <p className="text-gray-300 text-xs">
-            Start with an input node (HTTP Request or CSV), add transformation logic, 
-            and finish with an output destination.
+            Build: HTTP Request → Set → Advanced Filter → Database for a complete ETL pipeline.
           </p>
         </div>
       </CardContent>
