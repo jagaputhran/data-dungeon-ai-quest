@@ -122,9 +122,9 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
 
   return (
     <Card className="bg-gray-800/50 border-gray-600 h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Brain className="text-cyan-400 animate-pulse" size={20} />
+      <CardHeader className="pb-3">
+        <CardTitle className="text-white flex items-center gap-2 text-lg">
+          <Brain className="text-cyan-400 animate-pulse" size={18} />
           AI Assistant
           {selectedNode && (
             <Badge variant="secondary" className="ml-2 text-xs">
@@ -134,44 +134,35 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col p-4">
         {selectedNode ? (
-          <div className="space-y-4 h-full max-h-full flex flex-col">
-            {/* Conversational message + summary in a chat-box */}
-            <div className="bg-purple-900/20 p-3 rounded-lg border border-purple-500/30">
+          <div className="space-y-3 h-full flex flex-col">
+            {/* Conversational header - more compact */}
+            <div className="bg-purple-900/20 p-2.5 rounded-lg border border-purple-500/30">
               <div className="flex gap-2 items-center">
-                <Sparkles size={16} className="text-purple-300 mt-0.5" />
+                <Sparkles size={14} className="text-purple-300" />
                 <p className="text-purple-200 text-sm font-medium">
-                  <strong>Let’s configure your <span className="capitalize">{selectedNode.type}</span> node!</strong>
+                  Configure {selectedNode.type} Node
                 </p>
               </div>
-              <p className="text-gray-300 text-xs mt-2 pl-6">
+              <p className="text-gray-300 text-xs mt-1.5 pl-5">
                 {getNodeAdvice(selectedNode.type)}
               </p>
             </div>
-            {/* Scroll-safe compact config panel */}
-            <div
-              className="
-                rounded-xl border border-gray-700 shadow-inner
-                bg-gray-900/70 p-2 md:p-3 
-                max-h-[430px] md:max-h-[560px] overflow-y-auto
-                box-border w-full
-                flex-1
-              "
-              style={{
-                minHeight: "220px",
-                maxWidth: "100%",
-                marginBottom: 0,
-                // Always visually within assistant
-              }}
-            >
-              {getNodeConfigComponent()}
+            
+            {/* Full-width configuration panel with better spacing */}
+            <div className="flex-1 min-h-0">
+              <ScrollArea className="h-full">
+                <div className="pr-2">
+                  {getNodeConfigComponent()}
+                </div>
+              </ScrollArea>
             </div>
           </div>
         ) : (
           <div className="flex-1 flex flex-col">
             <ScrollArea className="flex-1 mb-4">
-              <div className="space-y-3 pr-4">
+              <div className="space-y-3 pr-2">
                 {messages.map((message, index) => (
                   <div
                     key={index}
@@ -195,29 +186,23 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
                 ))}
               </div>
             </ScrollArea>
-            {/* QUICK HELP PANEL: Boxed, responsive, never overflows */}
-            <div className="w-full">
-              <div className="bg-gray-900/80 rounded-xl border border-cyan-700/50 shadow-inner p-2 md:p-3 mb-2 space-y-2 max-w-full">
-                <p className="text-xs text-cyan-300 font-semibold px-2 mb-1">Quick Help</p>
-                <div className="flex flex-col gap-2 w-full">
-                  {quickResponses.map((question, index) => (
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleQuickResponse(question)}
-                      className="w-full justify-start text-left h-auto py-2 px-3 text-xs rounded-md border border-cyan-700/20 hover:border-cyan-500/70 bg-cyan-900/10 text-cyan-200 hover:bg-cyan-900/30 transition whitespace-normal"
-                      style={{
-                        wordBreak: "break-word",
-                        boxSizing: "border-box",
-                        maxWidth: "100%"
-                      }}
-                    >
-                      <Sparkles size={13} className="mr-2 text-cyan-400 flex-shrink-0" />
-                      {question}
-                    </Button>
-                  ))}
-                </div>
+            
+            {/* Quick Help Panel - more compact */}
+            <div className="bg-gray-900/80 rounded-lg border border-cyan-700/50 p-2.5 space-y-2">
+              <p className="text-xs text-cyan-300 font-semibold mb-1">Quick Help</p>
+              <div className="grid gap-1.5">
+                {quickResponses.map((question, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleQuickResponse(question)}
+                    className="w-full justify-start text-left h-auto py-1.5 px-2.5 text-xs rounded border border-cyan-700/20 hover:border-cyan-500/70 bg-cyan-900/10 text-cyan-200 hover:bg-cyan-900/30 transition"
+                  >
+                    <Sparkles size={12} className="mr-1.5 text-cyan-400 flex-shrink-0" />
+                    <span className="truncate">{question}</span>
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
