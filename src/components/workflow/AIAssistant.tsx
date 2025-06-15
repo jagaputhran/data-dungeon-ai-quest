@@ -136,17 +136,35 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
       
       <CardContent className="flex-1 flex flex-col">
         {selectedNode ? (
-          <div className="space-y-4">
+          <div className="space-y-4 h-full max-h-full flex flex-col">
+            {/* Conversational message + summary in a chat-box */}
             <div className="bg-purple-900/20 p-3 rounded-lg border border-purple-500/30">
-              <p className="text-purple-300 text-sm">
-                <strong>Selected:</strong> {selectedNode.title}
-              </p>
-              <p className="text-gray-400 text-xs mt-1">
+              <div className="flex gap-2 items-center">
+                <Sparkles size={16} className="text-purple-300 mt-0.5" />
+                <p className="text-purple-200 text-sm font-medium">
+                  <strong>Let’s configure your <span className="capitalize">{selectedNode.type}</span> node!</strong>
+                </p>
+              </div>
+              <p className="text-gray-300 text-xs mt-2 pl-6">
                 {getNodeAdvice(selectedNode.type)}
               </p>
             </div>
-            
-            <div className="flex-1">
+            {/* Scroll-safe compact config panel */}
+            <div
+              className="
+                rounded-xl border border-gray-700 shadow-inner
+                bg-gray-900/70 p-2 md:p-3 
+                max-h-[430px] md:max-h-[560px] overflow-y-auto
+                box-border w-full
+                flex-1
+              "
+              style={{
+                minHeight: "220px",
+                maxWidth: "100%",
+                marginBottom: 0,
+                // Always visually within assistant
+              }}
+            >
               {getNodeConfigComponent()}
             </div>
           </div>
