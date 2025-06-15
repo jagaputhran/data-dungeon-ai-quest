@@ -177,21 +177,30 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
                 ))}
               </div>
             </ScrollArea>
-            
-            <div className="space-y-2">
-              <p className="text-xs text-gray-400 mb-2">Quick Help:</p>
-              {quickResponses.map((question, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleQuickResponse(question)}
-                  className="w-full justify-start text-left h-auto p-2 text-xs hover:bg-cyan-900/20 text-gray-300"
-                >
-                  <Sparkles size={12} className="mr-2 text-cyan-400 flex-shrink-0" />
-                  {question}
-                </Button>
-              ))}
+            {/* QUICK HELP PANEL: Boxed, responsive, never overflows */}
+            <div className="w-full">
+              <div className="bg-gray-900/80 rounded-xl border border-cyan-700/50 shadow-inner p-2 md:p-3 mb-2 space-y-2 max-w-full">
+                <p className="text-xs text-cyan-300 font-semibold px-2 mb-1">Quick Help</p>
+                <div className="flex flex-col gap-2 w-full">
+                  {quickResponses.map((question, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleQuickResponse(question)}
+                      className="w-full justify-start text-left h-auto py-2 px-3 text-xs rounded-md border border-cyan-700/20 hover:border-cyan-500/70 bg-cyan-900/10 text-cyan-200 hover:bg-cyan-900/30 transition whitespace-normal"
+                      style={{
+                        wordBreak: "break-word",
+                        boxSizing: "border-box",
+                        maxWidth: "100%"
+                      }}
+                    >
+                      <Sparkles size={13} className="mr-2 text-cyan-400 flex-shrink-0" />
+                      {question}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,7 +163,7 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
 
         {/* Sample Data Preview */}
         {showPreview && previewData.length > 0 && (
-          <div className="bg-gray-900/80 p-4 rounded-xl border border-gray-700 mt-4 shadow-sm">
+          <div className="bg-gray-900/80 p-4 rounded-xl border border-gray-700 mt-4 shadow-sm w-full max-w-full">
             <div className="flex items-center gap-2 mb-3">
               <Download size={16} />
               <h4 className="text-white font-medium text-base">
@@ -172,8 +171,10 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
                 <span className="text-xs text-gray-400 ml-2">({previewData.length} of {sampleCsvData.length} rows)</span>
               </h4>
             </div>
-            <div className="overflow-x-auto">
-              <div className="rounded-lg border border-gray-700 overflow-hidden max-w-full">
+            {/* Constrained and scrollable table container */}
+            <div className="w-full max-w-full overflow-x-auto">
+              <div className="rounded-lg border border-gray-700 overflow-x-auto overflow-y-auto"
+                   style={{maxHeight: 320, minWidth: 350}}>
                 <table className="min-w-[350px] w-full table-auto text-xs md:text-sm bg-transparent">
                   <thead className="bg-gray-800 sticky top-0 z-10">
                     <tr>
@@ -181,30 +182,25 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
                         <th
                           key={key}
                           className="text-left text-cyan-200 px-3 py-2 font-semibold border-b border-gray-700 whitespace-nowrap"
+                          style={{ wordBreak: "break-word" }}
                         >
                           {key.replace('_', ' ').toUpperCase()}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody
-                    style={{
-                      maxHeight: "240px",
-                      overflowY: "auto",
-                      display: "block"
-                    }}
-                  >
+                  <tbody>
                     {previewData.map((row, index) => (
                       <tr
                         key={index}
                         className={`border-b border-gray-800 ${index % 2 === 0 ? "bg-gray-800/50" : "bg-gray-800/80"} hover:bg-gray-700/70 transition`}
-                        style={{ display: "table-row" }}
                       >
                         {Object.values(row).map((value: any, cellIndex) => (
                           <td
                             key={cellIndex}
                             className="text-gray-200 px-3 py-2 align-top whitespace-nowrap max-w-[160px] overflow-hidden text-ellipsis"
                             title={typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                            style={{ wordBreak: "break-word" }}
                           >
                             {typeof value === 'object' ? (
                               <span className="text-amber-300">{JSON.stringify(value)}</span>
