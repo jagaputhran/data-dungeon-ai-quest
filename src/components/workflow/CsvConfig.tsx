@@ -1,0 +1,150 @@
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { WorkflowNode } from "@/components/WorkflowBuilder";
+import { FileText, Download, Settings } from "lucide-react";
+import { useState } from "react";
+
+interface CsvConfigProps {
+  node: WorkflowNode;
+  onUpdate: (nodeId: string, updates: Partial<WorkflowNode>) => void;
+}
+
+const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
+  const [config, setConfig] = useState({
+    fileName: node.config?.fileName || 'sample-data.csv',
+    delimiter: node.config?.delimiter || ',',
+    hasHeader: node.config?.hasHeader !== false,
+    encoding: node.config?.encoding || 'utf-8',
+    skipRows: node.config?.skipRows || 0,
+    maxRows: node.config?.maxRows || '',
+    ...node.config
+  });
+
+  const handleConfigChange = (key: string, value: any) => {
+    const newConfig = { ...config, [key]: value };
+    setConfig(newConfig);
+    onUpdate(node.id, { config: newConfig });
+  };
+
+  const previewSampleData = () => {
+    console.log('CSV Preview:', {
+      fileName: config.fileName,
+      settings: config,
+      sampleRows: 5
+    });
+  };
+
+  return (
+    <Card className="bg-gray-800/50 border-gray-600">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <FileText size={20} />
+          CSV Reader Configuration
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label className="text-gray-300">File Source</Label>
+          <Input
+            value={config.fileName}
+            onChange={(e) => handleConfigChange('fileName', e.target.value)}
+            placeholder="Enter CSV file name or path"
+            className="bg-gray-700 border-gray-600 text-white"
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            Using built-in sample data: sample-data.csv
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label className="text-gray-300">Delimiter</Label>
+            <Select value={config.delimiter} onValueChange={(value) => handleConfigChange('delimiter', value)}>
+              <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value=",">Comma (,)</SelectItem>
+                <SelectItem value=";">Semicolon (;)</SelectItem>
+                <SelectItem value="\t">Tab</SelectItem>
+                <SelectItem value="|">Pipe (|)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-gray-300">Encoding</Label>
+            <Select value={config.encoding} onValueChange={(value) => handleConfigChange('encoding', value)}>
+              <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="utf-8">UTF-8</SelectItem>
+                <SelectItem value="utf-16">UTF-16</SelectItem>
+                <SelectItem value="ascii">ASCII</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Label className="text-gray-300">File has header row</Label>
+          <Switch
+            checked={config.hasHeader}
+            onCheckedChange={(checked) => handleConfigChange('hasHeader', checked)}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label className="text-gray-300">Skip Rows</Label>
+            <Input
+              type="number"
+              value={config.skipRows}
+              onChange={(e) => handleConfigChange('skipRows', parseInt(e.target.value) || 0)}
+              className="bg-gray-700 border-gray-600 text-white"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <Label className="text-gray-300">Max Rows (optional)</Label>
+            <Input
+              type="number"
+              value={config.maxRows}
+              onChange={(e) => handleConfigChange('maxRows', e.target.value)}
+              placeholder="All rows"
+              className="bg-gray-700 border-gray-600 text-white"
+              min="1"
+            />
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-gray-600">
+          <Button
+            onClick={previewSampleData}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
+            <Download size={16} className="mr-2" />
+            Preview Sample Data
+          </Button>
+        </div>
+
+        <div className="bg-cyan-900/20 p-3 rounded-lg border border-cyan-500/30">
+          <p className="text-cyan-300 text-xs">
+            📊 Sample data includes: Products, Categories, Pricing, Inventory, Owner info
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default CsvConfig;
