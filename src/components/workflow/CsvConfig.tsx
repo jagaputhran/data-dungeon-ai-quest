@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { WorkflowNode } from "@/components/WorkflowBuilder";
-import { FileText, Download, Settings } from "lucide-react";
+import { sampleCsvData } from "@/services/sampleDataService";
+import { FileText, Download, Settings, Eye } from "lucide-react";
 import { useState } from "react";
 
 interface CsvConfigProps {
@@ -24,6 +25,9 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
     maxRows: node.config?.maxRows || '',
     ...node.config
   });
+  
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<any[]>([]);
 
   const handleConfigChange = (key: string, value: any) => {
     const newConfig = { ...config, [key]: value };
@@ -32,10 +36,31 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
   };
 
   const previewSampleData = () => {
+    // Apply configuration settings to sample data
+    let data = [...sampleCsvData];
+    
+    // Apply skip rows
+    if (config.skipRows > 0) {
+      data = data.slice(config.skipRows);
+    }
+    
+    // Apply max rows limit
+    if (config.maxRows && parseInt(config.maxRows) > 0) {
+      data = data.slice(0, parseInt(config.maxRows));
+    }
+    
+    // Limit to first 5 rows for preview
+    const previewRows = data.slice(0, 5);
+    
+    setPreviewData(previewRows);
+    setShowPreview(true);
+    
     console.log('CSV Preview:', {
       fileName: config.fileName,
       settings: config,
-      sampleRows: 5
+      totalRows: sampleCsvData.length,
+      previewRows: previewRows.length,
+      data: previewRows
     });
   };
 
@@ -132,10 +157,54 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
             size="sm"
             className="w-full"
           >
-            <Download size={16} className="mr-2" />
+            <Eye size={16} className="mr-2" />
             Preview Sample Data
           </Button>
         </div>
+
+        {/* Sample Data Preview */}
+        {showPreview && previewData.length > 0 && (
+          <div className="bg-gray-800/30 p-3 rounded border border-gray-600">
+            <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+              <Download size={16} />
+              Sample Data Preview ({previewData.length} of {sampleCsvData.length} rows)
+            </h4>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-gray-600">
+                    {config.hasHeader && Object.keys(previewData[0] || {}).map((key) => (
+                      <th key={key} className="text-left text-gray-300 p-2 font-medium">
+                        {key.replace('_', ' ').toUpperCase()}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {previewData.map((row, index) => (
+                    <tr key={index} className="border-b border-gray-700/50">
+                      {Object.values(row).map((value: any, cellIndex) => (
+                        <td key={cellIndex} className="text-gray-300 p-2">
+                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            <Button
+              onClick={() => setShowPreview(false)}
+              variant="ghost"
+              size="sm"
+              className="mt-2 text-gray-400 hover:text-white"
+            >
+              Hide Preview
+            </Button>
+          </div>
+        )}
 
         <div className="bg-cyan-900/20 p-3 rounded-lg border border-cyan-500/30">
           <p className="text-cyan-300 text-xs">
