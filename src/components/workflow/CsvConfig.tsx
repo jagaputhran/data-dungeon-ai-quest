@@ -164,42 +164,66 @@ const CsvConfig = ({ node, onUpdate }: CsvConfigProps) => {
 
         {/* Sample Data Preview */}
         {showPreview && previewData.length > 0 && (
-          <div className="bg-gray-800/30 p-3 rounded border border-gray-600">
-            <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+          <div className="bg-gray-900/80 p-4 rounded-xl border border-gray-700 mt-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
               <Download size={16} />
-              Sample Data Preview ({previewData.length} of {sampleCsvData.length} rows)
-            </h4>
-            
+              <h4 className="text-white font-medium text-base">
+                Sample Data Preview
+                <span className="text-xs text-gray-400 ml-2">({previewData.length} of {sampleCsvData.length} rows)</span>
+              </h4>
+            </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-gray-600">
-                    {config.hasHeader && Object.keys(previewData[0] || {}).map((key) => (
-                      <th key={key} className="text-left text-gray-300 p-2 font-medium">
-                        {key.replace('_', ' ').toUpperCase()}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.map((row, index) => (
-                    <tr key={index} className="border-b border-gray-700/50">
-                      {Object.values(row).map((value: any, cellIndex) => (
-                        <td key={cellIndex} className="text-gray-300 p-2">
-                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                        </td>
+              <div className="rounded-lg border border-gray-700 overflow-hidden max-w-full">
+                <table className="min-w-[350px] w-full table-auto text-xs md:text-sm bg-transparent">
+                  <thead className="bg-gray-800 sticky top-0 z-10">
+                    <tr>
+                      {config.hasHeader && Object.keys(previewData[0] || {}).map((key) => (
+                        <th
+                          key={key}
+                          className="text-left text-cyan-200 px-3 py-2 font-semibold border-b border-gray-700 whitespace-nowrap"
+                        >
+                          {key.replace('_', ' ').toUpperCase()}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody
+                    style={{
+                      maxHeight: "240px",
+                      overflowY: "auto",
+                      display: "block"
+                    }}
+                  >
+                    {previewData.map((row, index) => (
+                      <tr
+                        key={index}
+                        className={`border-b border-gray-800 ${index % 2 === 0 ? "bg-gray-800/50" : "bg-gray-800/80"} hover:bg-gray-700/70 transition`}
+                        style={{ display: "table-row" }}
+                      >
+                        {Object.values(row).map((value: any, cellIndex) => (
+                          <td
+                            key={cellIndex}
+                            className="text-gray-200 px-3 py-2 align-top whitespace-nowrap max-w-[160px] overflow-hidden text-ellipsis"
+                            title={typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                          >
+                            {typeof value === 'object' ? (
+                              <span className="text-amber-300">{JSON.stringify(value)}</span>
+                            ) : (
+                              String(value)
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            
             <Button
               onClick={() => setShowPreview(false)}
               variant="ghost"
               size="sm"
-              className="mt-2 text-gray-400 hover:text-white"
+              className="mt-3 text-gray-400 hover:text-white w-full"
             >
               Hide Preview
             </Button>
