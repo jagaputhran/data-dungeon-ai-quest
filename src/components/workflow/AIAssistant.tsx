@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { WorkflowNode } from "@/components/WorkflowBuilder";
 import { Brain, MessageSquare, Wand2, AlertCircle } from "lucide-react";
+import { sampleCsvData, sampleApiEndpoints } from "@/services/sampleDataService";
 
 interface AIAssistantProps {
   selectedNode: WorkflowNode | null;
@@ -17,7 +18,7 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
   const [chatHistory, setChatHistory] = useState<Array<{role: string, message: string}>>([
     {
       role: "assistant",
-      message: "👋 Hi! I'm your AI workflow assistant. I can help you:\n\n• Configure node settings\n• Debug connection issues\n• Suggest optimizations\n• Explain workflow concepts\n\nSelect a node or ask me anything!"
+      message: "🚀 **Complete Workflow Guide Ready!**\n\n💾 **Sample Data Available:**\n• CSV: 5 product records with categories, pricing, inventory\n• APIs: JSONPlaceholder endpoints for testing\n\n🔄 **Suggested Flow:**\n1. **Data Input**: CSV Read or HTTP Request\n2. **Transform**: Set node for field mapping\n3. **Logic**: Filter or If nodes for conditions\n4. **Output**: Database or Snowflake for storage\n\n💡 **Quick Start**: Add a CSV Read node and ask me to configure it!"
     }
   ]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,8 +26,7 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
   const handleSendMessage = async () => {
     if (!userMessage.trim()) return;
     
-    console.log('AI Assistant - Sending message:', userMessage);
-    console.log('AI Assistant - Selected node:', selectedNode);
+    console.log('AI Assistant - Processing:', userMessage, 'Selected node:', selectedNode?.type);
     
     setIsGenerating(true);
     const newUserMessage = { role: "user", message: userMessage };
@@ -34,184 +34,315 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
     const currentMessage = userMessage;
     setUserMessage("");
     
-    // Simulate AI response with better error handling
     setTimeout(() => {
       let aiResponse = "";
       
       try {
         if (selectedNode) {
-          console.log('AI Assistant - Processing message for node:', selectedNode.type, selectedNode.id);
+          console.log('AI Assistant - Configuring node:', selectedNode.type);
           
-          if (currentMessage.toLowerCase().includes("configure") || currentMessage.toLowerCase().includes("setup")) {
-            aiResponse = `🔧 Configuring your ${selectedNode.type} node "${selectedNode.title}":\n\n`;
+          // Handle different query types
+          if (currentMessage.toLowerCase().includes("configure") || 
+              currentMessage.toLowerCase().includes("setup") ||
+              currentMessage.toLowerCase().includes("how")) {
             
-            switch (selectedNode.type) {
-              case "HTTP Request":
-                aiResponse += "✅ **HTTP Request Configuration:**\n";
-                aiResponse += "• URL: Enter your API endpoint\n";
-                aiResponse += "• Method: GET/POST/PUT/DELETE\n";
-                aiResponse += "• Headers: Add authentication tokens\n";
-                aiResponse += "• Parameters: Query or body parameters\n\n";
-                aiResponse += "💡 **Example for API fetching:**\n";
-                aiResponse += "```json\n{\n  \"Authorization\": \"Bearer YOUR_TOKEN\",\n  \"Content-Type\": \"application/json\"\n}\n```";
-                
-                // Auto-configure basic settings
-                onNodeUpdate(selectedNode.id, {
-                  config: {
-                    method: "GET",
-                    url: "https://api.example.com/data",
-                    headers: { 
-                      "Content-Type": "application/json",
-                      "Authorization": "Bearer YOUR_TOKEN_HERE"
-                    },
-                    timeout: 30000
-                  }
-                });
-                aiResponse += "\n\n✅ I've pre-configured basic settings for you!";
-                break;
-                
-              case "Set":
-                aiResponse += "✅ **Data Mapping Configuration:**\n";
-                aiResponse += "• **Field Mapping**: Map input fields to output fields\n";
-                aiResponse += "• **Data Types**: Ensure proper type conversion\n";
-                aiResponse += "• **Expressions**: Use JavaScript expressions for complex logic\n\n";
-                aiResponse += "💡 **Example mapping configuration:**\n";
-                aiResponse += "```json\n{\n  \"feature_name\": \"{{$json.title}}\",\n  \"owner_email\": \"{{$json.owner.email}}\",\n  \"created_date\": \"{{$json.createdAt}}\",\n  \"status\": \"{{$json.status || 'active'}}\"\n}\n```\n\n";
-                aiResponse += "🎯 **Common use cases:**\n";
-                aiResponse += "• Rename fields from API responses\n";
-                aiResponse += "• Calculate new values\n";
-                aiResponse += "• Format dates and numbers\n";
-                aiResponse += "• Set default values";
-                
-                // Auto-configure mapping
-                onNodeUpdate(selectedNode.id, {
-                  config: {
-                    mappings: {
-                      "feature_name": "{{$json.title}}",
-                      "owner_email": "{{$json.owner.email}}",
-                      "created_date": "{{$json.createdAt}}",
-                      "status": "{{$json.status || 'active'}}"
-                    },
-                    keepOnlySet: false,
-                    options: {}
-                  }
-                });
-                aiResponse += "\n\n✅ I've configured basic field mappings for you!";
-                break;
-                
-              case "Database":
-                aiResponse += "✅ **Database Configuration:**\n";
-                aiResponse += "• **Connection**: Database credentials and host\n";
-                aiResponse += "• **Operation**: INSERT/UPDATE/SELECT/DELETE\n";
-                aiResponse += "• **Table**: Target table name\n";
-                aiResponse += "• **Mapping**: Field to column mapping\n\n";
-                aiResponse += "💡 **Example configuration:**\n";
-                aiResponse += "```json\n{\n  \"operation\": \"INSERT\",\n  \"table\": \"features\",\n  \"columns\": [\"name\", \"owner\", \"created_at\"]\n}\n```";
-                
-                onNodeUpdate(selectedNode.id, {
-                  config: {
-                    operation: "INSERT",
-                    table: "features",
-                    columns: ["name", "owner", "created_at"]
-                  }
-                });
-                aiResponse += "\n\n✅ Basic database configuration applied!";
-                break;
-                
-              case "Snowflake":
-                aiResponse += "✅ **Snowflake Configuration:**\n";
-                aiResponse += "• **Account**: Snowflake account identifier\n";
-                aiResponse += "• **Warehouse**: Compute warehouse name\n";
-                aiResponse += "• **Database & Schema**: Target location\n";
-                aiResponse += "• **Credentials**: Username/password or key pair\n\n";
-                aiResponse += "💡 **Connection example:**\n";
-                aiResponse += "```json\n{\n  \"account\": \"abc12345.snowflakecomputing.com\",\n  \"warehouse\": \"COMPUTE_WH\",\n  \"database\": \"ANALYTICS\",\n  \"schema\": \"RAW_DATA\"\n}\n```";
-                break;
-                
-              default:
-                aiResponse += `• **Node Type**: ${selectedNode.type}\n`;
-                aiResponse += "• Check the node documentation for specific parameters\n";
-                aiResponse += "• Use the configuration panel to set required fields\n\n";
-                aiResponse += "💡 **Tip**: Each node type has different configuration options. Let me know what specific settings you need help with!";
-            }
+            aiResponse = generateConfigurationResponse(selectedNode, currentMessage);
             
-          } else if (currentMessage.toLowerCase().includes("error") || currentMessage.toLowerCase().includes("fix")) {
-            aiResponse = `🔍 **Debugging your ${selectedNode.type} node:**\n\n`;
-            aiResponse += "**Common issues to check:**\n";
-            aiResponse += "• ✅ Authentication credentials are correct\n";
-            aiResponse += "• ✅ API endpoints are accessible and valid\n";
-            aiResponse += "• ✅ Data mapping fields match input structure\n";
-            aiResponse += "• ✅ Required fields are not empty\n";
-            aiResponse += "• ✅ Network connectivity is working\n\n";
-            aiResponse += "💡 **Tip**: Enable verbose logging to see detailed error messages and check the execution panel for specific error details.";
+          } else if (currentMessage.toLowerCase().includes("data") || 
+                    currentMessage.toLowerCase().includes("sample")) {
+            
+            aiResponse = generateDataResponse(selectedNode);
+            
+          } else if (currentMessage.toLowerCase().includes("flow") || 
+                    currentMessage.toLowerCase().includes("workflow")) {
+            
+            aiResponse = generateWorkflowResponse(selectedNode);
+            
+          } else if (currentMessage.toLowerCase().includes("error") || 
+                    currentMessage.toLowerCase().includes("debug")) {
+            
+            aiResponse = generateDebugResponse(selectedNode);
             
           } else {
-            aiResponse = `ℹ️ **About ${selectedNode.type} nodes:**\n\n`;
-            aiResponse += getNodeExplanation(selectedNode.type);
-            aiResponse += "\n\n💡 **Quick actions**: Try asking me to 'configure this node' or 'help me set up this node'!";
+            aiResponse = generateGeneralResponse(selectedNode, currentMessage);
           }
+          
         } else {
-          // No node selected responses
-          if (currentMessage.toLowerCase().includes("workflow") || currentMessage.toLowerCase().includes("pipeline")) {
-            aiResponse = "🚀 **Workflow Best Practices:**\n\n";
-            aiResponse += "1. **Start Simple**: Begin with input → transform → output\n";
-            aiResponse += "2. **Error Handling**: Add error nodes for resilience\n";
-            aiResponse += "3. **Testing**: Test each node individually first\n";
-            aiResponse += "4. **Monitoring**: Add logging and notifications\n";
-            aiResponse += "5. **Documentation**: Name nodes clearly and add descriptions\n\n";
-            aiResponse += "💡 **Tip**: Select a node first to get specific configuration help!";
-          } else if (currentMessage.toLowerCase().includes("api") || currentMessage.toLowerCase().includes("fetch")) {
-            aiResponse = "🌐 **To fetch data from APIs:**\n\n";
-            aiResponse += "1. **Add HTTP Request Node**: Drag from the Input section\n";
-            aiResponse += "2. **Configure URL**: Set your API endpoint\n";
-            aiResponse += "3. **Add Authentication**: Include API keys or tokens\n";
-            aiResponse += "4. **Test Connection**: Run a single node test\n\n";
-            aiResponse += "💡 **Next step**: Select an HTTP Request node and ask me to configure it!";
-          } else {
-            aiResponse = "🤖 **I can help with:**\n\n";
-            aiResponse += "• **Node Configuration**: Select any node and ask me to configure it\n";
-            aiResponse += "• **Workflow Design**: Best practices and architecture\n";
-            aiResponse += "• **Debugging**: Fix errors and connection issues\n";
-            aiResponse += "• **Learning**: Explain concepts and node types\n\n";
-            aiResponse += "💡 **Try this**: Select a node on the canvas, then ask 'configure this node'!";
-          }
+          // No node selected - provide general guidance
+          aiResponse = generateGeneralGuidance(currentMessage);
         }
         
-        console.log('AI Assistant - Generated response:', aiResponse);
+        console.log('AI Assistant - Response generated:', aiResponse.substring(0, 100) + '...');
         setChatHistory(prev => [...prev, { role: "assistant", message: aiResponse }]);
         
       } catch (error) {
-        console.error('AI Assistant - Error generating response:', error);
+        console.error('AI Assistant Error:', error);
         setChatHistory(prev => [...prev, { 
           role: "assistant", 
-          message: "❌ Sorry, I encountered an error. Please try again or rephrase your question." 
+          message: "❌ Error generating response. Please try again or rephrase your question." 
         }]);
       }
       
       setIsGenerating(false);
-    }, 1000);
+    }, 800);
+  };
+
+  const generateConfigurationResponse = (node: WorkflowNode, message: string): string => {
+    let response = `🔧 **Configuring ${node.type} Node**\n\n`;
+    
+    switch (node.type) {
+      case "CSV Read":
+        response += "📄 **CSV Read Configuration:**\n";
+        response += "• **File Source**: Built-in sample data (5 product records)\n";
+        response += "• **Columns**: id, name, category, price, quantity, status, created_at, owner\n";
+        response += "• **Format**: Standard CSV with headers\n\n";
+        response += "📊 **Sample Data Preview:**\n";
+        response += "```json\n";
+        response += JSON.stringify(sampleCsvData[0], null, 2);
+        response += "\n```\n\n";
+        response += "✅ **Auto-configured**: Ready to read sample product data!";
+        
+        onNodeUpdate(node.id, {
+          config: {
+            source: "sample_products.csv",
+            hasHeaders: true,
+            delimiter: ",",
+            encoding: "utf-8",
+            skipRows: 0,
+            dataPreview: sampleCsvData.slice(0, 2)
+          }
+        });
+        break;
+        
+      case "HTTP Request":
+        response += "🌐 **HTTP Request Configuration:**\n";
+        response += "• **Method**: GET (for data fetching)\n";
+        response += "• **URL**: JSONPlaceholder API endpoint\n";
+        response += "• **Headers**: Content-Type, Authorization (if needed)\n\n";
+        response += "🔗 **Available Sample APIs:**\n";
+        Object.entries(sampleApiEndpoints).forEach(([name, url]) => {
+          response += `• **${name}**: ${url}\n`;
+        });
+        response += "\n💡 **Example Response Format:**\n";
+        response += "```json\n{\n  \"id\": 1,\n  \"title\": \"Product Name\",\n  \"body\": \"Description\",\n  \"userId\": 1\n}\n```";
+        
+        onNodeUpdate(node.id, {
+          config: {
+            method: "GET",
+            url: sampleApiEndpoints.products,
+            headers: { 
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            timeout: 30000,
+            retries: 3
+          }
+        });
+        response += "\n\n✅ **Configured**: Ready to fetch from sample API!";
+        break;
+        
+      case "Set":
+        response += "🔧 **Data Transformation Configuration:**\n";
+        response += "• **Field Mapping**: Transform input fields to desired output\n";
+        response += "• **Expressions**: Use JavaScript for complex transformations\n";
+        response += "• **Type Conversion**: Ensure proper data types\n\n";
+        response += "💡 **Smart Mapping for Sample Data:**\n";
+        response += "```json\n{\n  \"product_name\": \"{{$json.name}}\",\n  \"owner_email\": \"{{$json.owner.email}}\",\n  \"created_date\": \"{{$json.created_at}}\",\n  \"price_category\": \"{{$json.price > 100 ? 'expensive' : 'affordable'}}\",\n  \"is_available\": \"{{$json.status === 'active' && $json.quantity > 0}}\"\n}\n```\n\n";
+        response += "🎯 **Transformation Benefits:**\n";
+        response += "• Standardize field names\n• Add calculated fields\n• Apply business logic\n• Format data for destination";
+        
+        onNodeUpdate(node.id, {
+          config: {
+            mappings: {
+              "product_name": "{{$json.name}}",
+              "owner_email": "{{$json.owner.email}}",
+              "created_date": "{{$json.created_at}}",
+              "price_category": "{{$json.price > 100 ? 'expensive' : 'affordable'}}",
+              "is_available": "{{$json.status === 'active' && $json.quantity > 0}}"
+            },
+            keepOnlySet: false,
+            options: { dateFormat: "ISO" }
+          }
+        });
+        response += "\n\n✅ **Auto-configured**: Smart mappings applied!";
+        break;
+        
+      case "Filter":
+        response += "🔍 **Data Filter Configuration:**\n";
+        response += "• **Condition Logic**: Keep only records that match criteria\n";
+        response += "• **Multiple Conditions**: AND/OR logic support\n\n";
+        response += "💡 **Smart Filters for Sample Data:**\n";
+        response += "```javascript\n// Active products only\n{{$json.status === 'active'}}\n\n// Products with inventory\n{{$json.quantity > 0}}\n\n// Electronics over $100\n{{$json.category === 'Electronics' && $json.price > 100}}\n```\n\n";
+        response += "📊 **Filter Impact**: From 5 records → ~3 active products";
+        
+        onNodeUpdate(node.id, {
+          config: {
+            condition: "{{$json.status === 'active'}}",
+            conditions: {
+              all: [
+                { field: "status", operator: "equals", value: "active" },
+                { field: "quantity", operator: "greater_than", value: 0 }
+              ]
+            }
+          }
+        });
+        response += "\n\n✅ **Configured**: Filtering for active products with inventory!";
+        break;
+        
+      case "Database":
+        response += "🗄️ **Database Storage Configuration:**\n";
+        response += "• **Operation**: INSERT new records\n";
+        response += "• **Table**: products (auto-created)\n";
+        response += "• **Mapping**: Field to column mapping\n\n";
+        response += "💾 **Optimized Schema:**\n";
+        response += "```sql\nCREATE TABLE products (\n  id SERIAL PRIMARY KEY,\n  product_name VARCHAR(255),\n  owner_email VARCHAR(255),\n  created_date TIMESTAMP,\n  price_category VARCHAR(50),\n  is_available BOOLEAN\n);\n```";
+        
+        onNodeUpdate(node.id, {
+          config: {
+            operation: "INSERT",
+            table: "products",
+            columns: ["product_name", "owner_email", "created_date", "price_category", "is_available"],
+            onConflict: "UPDATE",
+            batchSize: 100
+          }
+        });
+        response += "\n\n✅ **Ready**: Will insert transformed product data!";
+        break;
+        
+      default:
+        response += `• **Node Type**: ${node.type}\n`;
+        response += "• Configuration depends on specific requirements\n";
+        response += "• Check node documentation for parameters\n\n";
+        response += "💡 **Need specific help?** Ask about the exact configuration you need!";
+    }
+    
+    return response;
+  };
+
+  const generateDataResponse = (node: WorkflowNode): string => {
+    let response = `📊 **Data Information for ${node.type}**\n\n`;
+    
+    switch (node.type) {
+      case "CSV Read":
+        response += "📄 **Sample CSV Data:**\n";
+        response += `• **Records**: ${sampleCsvData.length} products\n`;
+        response += `• **Categories**: ${[...new Set(sampleCsvData.map(p => p.category))].join(', ')}\n`;
+        response += `• **Price Range**: $${Math.min(...sampleCsvData.map(p => p.price))} - $${Math.max(...sampleCsvData.map(p => p.price))}\n`;
+        response += `• **Active Products**: ${sampleCsvData.filter(p => p.status === 'active').length}\n\n`;
+        response += "🔍 **Data Structure:**\n";
+        response += "```json\n" + JSON.stringify(sampleCsvData[0], null, 2) + "\n```";
+        break;
+        
+      case "HTTP Request":
+        response += "🌐 **API Data Sources:**\n";
+        Object.entries(sampleApiEndpoints).forEach(([name, url]) => {
+          response += `• **${name}**: ${url}\n`;
+        });
+        response += "\n📡 **Expected Response**: JSON array with objects\n";
+        response += "🔄 **Data Flow**: API → JSON → Transformation → Output";
+        break;
+        
+      default:
+        response += "• Data processing capabilities depend on input from previous nodes\n";
+        response += "• Will work with any JSON-structured data\n";
+        response += "• Supports arrays and nested objects";
+    }
+    
+    return response;
+  };
+
+  const generateWorkflowResponse = (node: WorkflowNode): string => {
+    return `🔄 **Complete Workflow with ${node.type}**\n\n` +
+           "📋 **Recommended Flow:**\n" +
+           "1. **📄 CSV Read** → Load sample product data\n" +
+           "2. **🔧 Set** → Transform and map fields\n" +
+           "3. **🔍 Filter** → Keep only active products\n" +
+           "4. **🗄️ Database** → Store final results\n\n" +
+           "💡 **Your current node** fits into this flow and will process the data according to your configuration.\n\n" +
+           "🚀 **Next Steps**: Configure remaining nodes and run the workflow!";
+  };
+
+  const generateDebugResponse = (node: WorkflowNode): string => {
+    return `🔍 **Debugging ${node.type} Node**\n\n` +
+           "✅ **Common Checks:**\n" +
+           "• Configuration is complete and valid\n" +
+           "• Input data format matches expectations\n" +
+           "• All required fields are mapped\n" +
+           "• No syntax errors in expressions\n\n" +
+           "🛠️ **Troubleshooting Tips:**\n" +
+           "• Check the execution logs for detailed errors\n" +
+           "• Verify sample data is loading correctly\n" +
+           "• Test individual transformations\n" +
+           "• Ensure proper data flow between nodes\n\n" +
+           "💡 **Need specific help?** Describe the exact error you're seeing!";
+  };
+
+  const generateGeneralResponse = (node: WorkflowNode, message: string): string => {
+    return `💡 **About ${node.type} Nodes**\n\n` +
+           getNodeExplanation(node.type) + "\n\n" +
+           "🎯 **Available Actions:**\n" +
+           "• Ask me to 'configure this node'\n" +
+           "• Request 'sample data information'\n" +
+           "• Get 'workflow recommendations'\n" +
+           "• Ask for 'debugging help'\n\n" +
+           "💬 **Or ask specific questions** about your data processing needs!";
+  };
+
+  const generateGeneralGuidance = (message: string): string => {
+    if (message.toLowerCase().includes("workflow") || message.toLowerCase().includes("flow")) {
+      return "🔄 **Complete ETL Workflow Guide**\n\n" +
+             "📊 **Data Sources Available:**\n" +
+             "• CSV: 5 sample product records\n" +
+             "• API: JSONPlaceholder endpoints\n\n" +
+             "🛠️ **Recommended Workflow:**\n" +
+             "1. **Input**: CSV Read or HTTP Request\n" +
+             "2. **Transform**: Set node for mapping\n" +
+             "3. **Filter**: Apply business logic\n" +
+             "4. **Output**: Database or Snowflake\n\n" +
+             "🚀 **Quick Start**: Add nodes from the palette and I'll help configure them!";
+    }
+    
+    if (message.toLowerCase().includes("data") || message.toLowerCase().includes("sample")) {
+      return "📊 **Sample Data Overview**\n\n" +
+             `• **CSV Records**: ${sampleCsvData.length} products with full details\n` +
+             "• **API Endpoints**: 3 test endpoints available\n" +
+             "• **Data Types**: Products, categories, pricing, inventory\n" +
+             "• **Use Cases**: E-commerce, inventory, analytics\n\n" +
+             "💡 **Get Started**: Add a CSV Read or HTTP Request node and ask me to configure it!";
+    }
+    
+    return "🤖 **AI Workflow Assistant Ready!**\n\n" +
+           "💾 **I can help you with:**\n" +
+           "• **Configure Nodes**: Select any node for specific setup\n" +
+           "• **Sample Data**: Built-in CSV and API data sources\n" +
+           "• **Complete Flows**: End-to-end ETL pipeline guidance\n" +
+           "• **Debugging**: Fix errors and optimize performance\n\n" +
+           "🎯 **Try This**: Add a CSV Read node, select it, and ask 'configure this node'!";
   };
 
   const getNodeExplanation = (nodeType: string): string => {
     const explanations: Record<string, string> = {
-      "HTTP Request": "**Makes API calls** to external services. Perfect for fetching data from REST APIs, webhooks, or any HTTP endpoint. Configure the URL, method, headers, and authentication.",
-      "Set": "**Transforms and maps data** fields. Use JavaScript expressions to manipulate data, rename fields, perform calculations, or set default values. Essential for data transformation between different formats.",
-      "Database": "**Connects to SQL databases** for reading/writing data. Supports MySQL, PostgreSQL, and other popular databases. Configure connection details and SQL operations.",
-      "CSV Read": "**Reads data from CSV files**. Useful for batch processing of uploaded files or scheduled data imports from file sources.",
-      "Filter": "**Filters data based on conditions**. Only rows meeting your criteria will pass through to the next node. Use for data quality and filtering.",
-      "If": "**Creates conditional logic** in your workflow. Routes data based on boolean conditions to different paths in your workflow.",
-      "Slack": "**Sends messages to Slack** channels. Great for notifications, alerts, and workflow status updates. Configure webhook URL and message format.",
-      "Snowflake": "**Connects to Snowflake** data warehouse. Ideal for analytics and big data processing workflows. Configure account, warehouse, and credentials.",
+      "CSV Read": "**Loads data from CSV files**. Perfect for batch processing and data imports. Our sample includes 5 product records with categories, pricing, and inventory data.",
+      "HTTP Request": "**Fetches data from APIs**. Ideal for real-time data integration. Sample endpoints include JSONPlaceholder for testing API workflows.",
+      "Set": "**Transforms and maps data**. Essential for data cleaning and field mapping. Use JavaScript expressions for complex transformations and business logic.",
+      "Filter": "**Filters data based on conditions**. Perfect for data quality and business rules. Keep only records that meet your criteria.",
+      "Database": "**Stores data in databases**. Final destination for your processed data. Supports MySQL, PostgreSQL, and other SQL databases.",
+      "Snowflake": "**Loads data to Snowflake**. Enterprise data warehouse solution for analytics and big data processing.",
     };
     
-    return explanations[nodeType] || "This node performs specific operations in your workflow. Check the documentation for detailed usage.";
+    return explanations[nodeType] || "This node performs specific operations in your data pipeline. Ask me about its configuration for detailed setup help.";
   };
 
-  const quickActions = [
-    { label: "Configure Node", action: "Configure this node for me" },
-    { label: "Explain Node", action: "What does this node do and how should I configure it?" },
-    { label: "Fix Issues", action: "Help me debug and fix any issues with this node" },
-    { label: "Best Practices", action: "What are the best practices for this node type?" }
+  const quickActions = selectedNode ? [
+    { label: "Configure Node", action: "Configure this node with sample data" },
+    { label: "Show Sample Data", action: "What sample data is available for this node?" },
+    { label: "Complete Workflow", action: "How does this node fit in a complete workflow?" },
+    { label: "Debug Issues", action: "Help me debug any issues with this node" }
+  ] : [
+    { label: "Start Workflow", action: "How do I start building a workflow?" },
+    { label: "Sample Data", action: "What sample data is available?" },
+    { label: "Best Practices", action: "What are ETL workflow best practices?" },
+    { label: "Quick Setup", action: "Give me a quick workflow setup guide" }
   ];
 
   return (
@@ -219,7 +350,7 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Brain className="text-purple-400" size={20} />
-          AI Assistant
+          AI Workflow Assistant
         </CardTitle>
         {selectedNode && (
           <Badge variant="outline" className="w-fit">
@@ -260,25 +391,23 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
         </div>
 
         {/* Quick Actions */}
-        {selectedNode && (
-          <div className="mb-4">
-            <h4 className="text-white text-sm font-semibold mb-2">Quick Actions:</h4>
-            <div className="grid grid-cols-1 gap-1">
-              {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="sm"
-                  className="justify-start text-xs h-8 text-gray-300 hover:text-white hover:bg-purple-600/20"
-                  onClick={() => setUserMessage(action.action)}
-                >
-                  <Wand2 size={12} className="mr-1" />
-                  {action.label}
-                </Button>
-              ))}
-            </div>
+        <div className="mb-4">
+          <h4 className="text-white text-sm font-semibold mb-2">Quick Actions:</h4>
+          <div className="grid grid-cols-1 gap-1">
+            {quickActions.map((action, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                size="sm"
+                className="justify-start text-xs h-8 text-gray-300 hover:text-white hover:bg-purple-600/20"
+                onClick={() => setUserMessage(action.action)}
+              >
+                <Wand2 size={12} className="mr-1" />
+                {action.label}
+              </Button>
+            ))}
           </div>
-        )}
+        </div>
 
         {/* Chat Input */}
         <div className="space-y-2">
@@ -286,8 +415,8 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
             value={userMessage}
             onChange={(e) => setUserMessage(e.target.value)}
             placeholder={selectedNode ? 
-              `Ask about configuring your ${selectedNode.type} node...` : 
-              "Ask me anything about workflows, nodes, or configurations..."
+              `Ask about ${selectedNode.type} configuration, sample data, or workflow integration...` : 
+              "Ask about workflows, sample data, configurations, or how to get started..."
             }
             className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 text-sm"
             rows={3}
@@ -322,10 +451,10 @@ const AIAssistant = ({ selectedNode, onNodeUpdate }: AIAssistantProps) => {
           <div className="mt-4 p-3 bg-blue-900/20 rounded-lg border border-blue-500/30">
             <div className="flex items-center gap-2 mb-1">
               <AlertCircle size={14} className="text-blue-400" />
-              <span className="text-blue-400 text-xs font-semibold">Tip</span>
+              <span className="text-blue-400 text-xs font-semibold">Ready to Start</span>
             </div>
             <p className="text-gray-300 text-xs">
-              Select a node on the canvas to get specific configuration help!
+              Add nodes from the palette and select them for specific configuration help!
             </p>
           </div>
         )}

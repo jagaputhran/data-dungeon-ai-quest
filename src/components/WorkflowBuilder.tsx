@@ -8,6 +8,7 @@ import NodePalette from "@/components/workflow/NodePalette";
 import AIAssistant from "@/components/workflow/AIAssistant";
 import ExecutionPanel from "@/components/workflow/ExecutionPanel";
 import { workflowMissions } from "@/data/workflowMissions";
+import { sampleCsvData, simulateApiCall } from "@/services/sampleDataService";
 import { GitBranch, Brain, Play, CheckCircle } from "lucide-react";
 
 interface WorkflowBuilderProps {
@@ -46,12 +47,14 @@ const WorkflowBuilder = ({ onScoreUpdate }: WorkflowBuilderProps) => {
       connections: []
     };
     setNodes([...nodes, newNode]);
+    console.log('Added node:', nodeType, 'Total nodes:', nodes.length + 1);
   };
 
   const updateNode = (nodeId: string, updates: Partial<WorkflowNode>) => {
     setNodes(nodes.map(node => 
       node.id === nodeId ? { ...node, ...updates } : node
     ));
+    console.log('Updated node:', nodeId, 'Updates:', updates);
   };
 
   const deleteNode = (nodeId: string) => {
@@ -59,39 +62,90 @@ const WorkflowBuilder = ({ onScoreUpdate }: WorkflowBuilderProps) => {
     if (selectedNode === nodeId) {
       setSelectedNode(null);
     }
+    console.log('Deleted node:', nodeId);
   };
 
   const executeWorkflow = async () => {
     if (nodes.length === 0) return;
     
+    console.log('Starting workflow execution with sample data...');
     setIsExecuting(true);
     setExecutionResult(null);
     
     // Reset all node statuses
     nodes.forEach(node => updateNode(node.id, { status: 'idle' }));
     
-    // Simulate workflow execution
     const executionLogs: string[] = [];
     let totalScore = mission.baseScore;
     let hasErrors = false;
+    let processedData = null;
     
-    executionLogs.push('🚀 Starting workflow execution...');
+    executionLogs.push('🚀 Starting workflow execution with sample data...');
+    executionLogs.push(`📊 Available data: ${sampleCsvData.length} sample records`);
     executionLogs.push('');
     
     for (const node of nodes) {
       updateNode(node.id, { status: 'running' });
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Simulate node execution based on type
-      const success = Math.random() > 0.3; // 70% success rate for demo
-      
-      if (success) {
+      try {
+        // Execute node with real sample data
+        let nodeResult;
+        
+        switch (node.type) {
+          case "CSV Read":
+            nodeResult = { data: sampleCsvData, count: sampleCsvData.length };
+            processedData = sampleCsvData;
+            executionLogs.push(`✅ ${node.title} loaded ${sampleCsvData.length} records from sample CSV`);
+            break;
+            
+          case "HTTP Request":
+            const apiData = await simulateApiCall(node.config?.url || "");
+            nodeResult = { data: apiData, count: apiData.length };
+            processedData = apiData;
+            executionLogs.push(`✅ ${node.title} fetched ${apiData.length} records from API`);
+            break;
+            
+          case "Set":
+            if (processedData) {
+              const transformedData = processedData.map((item: any) => ({
+                product_name: item.name || item.title,
+                owner_email: item.owner?.email || `user${item.id}@example.com`,
+                created_date: item.created_at || new Date().toISOString(),
+                price_category: (item.price || 50) > 100 ? 'expensive' : 'affordable',
+                is_available: item.status === 'active' && (item.quantity || 0) > 0
+              }));
+              processedData = transformedData;
+              executionLogs.push(`✅ ${node.title} transformed ${transformedData.length} records with field mappings`);
+            }
+            break;
+            
+          case "Filter":
+            if (processedData) {
+              const filteredData = processedData.filter((item: any) => 
+                item.status === 'active' || item.is_available
+              );
+              processedData = filteredData;
+              executionLogs.push(`✅ ${node.title} filtered to ${filteredData.length} active records`);
+            }
+            break;
+            
+          case "Database":
+            if (processedData) {
+              executionLogs.push(`✅ ${node.title} inserted ${processedData.length} records into ${node.config?.table || 'products'} table`);
+            }
+            break;
+            
+          default:
+            executionLogs.push(`✅ ${node.title} processed successfully`);
+        }
+        
         updateNode(node.id, { status: 'success' });
-        executionLogs.push(`✅ ${node.title} completed successfully`);
-        totalScore += 10;
-      } else {
+        totalScore += 15;
+        
+      } catch (error) {
         updateNode(node.id, { status: 'error' });
-        executionLogs.push(`❌ ${node.title} failed - check configuration`);
+        executionLogs.push(`❌ ${node.title} failed - ${error}`);
         hasErrors = true;
         totalScore -= 5;
       }
@@ -100,25 +154,29 @@ const WorkflowBuilder = ({ onScoreUpdate }: WorkflowBuilderProps) => {
     executionLogs.push('');
     if (!hasErrors) {
       executionLogs.push('🎉 Workflow completed successfully!');
-      executionLogs.push('📊 All data processed and loaded correctly');
+      executionLogs.push(`📊 Final output: ${processedData ? processedData.length : 'N/A'} processed records`);
+      executionLogs.push('💾 Data ready for analysis and reporting');
       
       if (!completedMissions.includes(currentMission)) {
         setCompletedMissions([...completedMissions, currentMission]);
         onScoreUpdate(totalScore);
+        executionLogs.push(`🏆 Mission completed! +${totalScore} points earned`);
       }
     } else {
       executionLogs.push('⚠️ Workflow completed with errors');
-      executionLogs.push('💡 Use AI Assistant to fix issues and retry');
+      executionLogs.push('💡 Use AI Assistant to fix configuration issues');
     }
     
     setExecutionResult({
       success: !hasErrors,
       logs: executionLogs,
       score: Math.max(totalScore, 0),
-      nodesProcessed: nodes.length
+      nodesProcessed: nodes.length,
+      finalData: processedData
     });
     
     setIsExecuting(false);
+    console.log('Workflow execution completed:', { success: !hasErrors, nodes: nodes.length });
   };
 
   return (
@@ -131,7 +189,7 @@ const WorkflowBuilder = ({ onScoreUpdate }: WorkflowBuilderProps) => {
           <Brain className="text-cyan-400 animate-bounce" size={32} />
         </h2>
         <p className="text-gray-300 text-lg mb-4">
-          Build automated ETL workflows with AI assistance. Drag nodes, connect them, and deploy real data pipelines!
+          Build automated ETL workflows with AI assistance. Use sample data, configure transformations, and deploy real pipelines!
         </p>
         
         {/* Mission Progress */}
@@ -160,12 +218,15 @@ const WorkflowBuilder = ({ onScoreUpdate }: WorkflowBuilderProps) => {
         </CardHeader>
         <CardContent>
           <p className="text-gray-300 mb-4">{mission.description}</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-3">
             {mission.requiredNodes.map((nodeType, index) => (
               <Badge key={index} variant="secondary" className="text-xs">
                 {nodeType}
               </Badge>
             ))}
+          </div>
+          <div className="text-sm text-cyan-400">
+            💡 Sample data and APIs are ready for testing your workflow!
           </div>
         </CardContent>
       </Card>

@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WorkflowNode } from "@/components/WorkflowBuilder";
-import { Play, Trash2, Settings, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Play, Trash2, Settings, CheckCircle, XCircle, Clock, Database } from "lucide-react";
+import { sampleCsvData, simulateApiCall } from "@/services/sampleDataService";
 
 interface WorkflowCanvasProps {
   nodes: WorkflowNode[];
@@ -19,6 +20,7 @@ const WorkflowCanvas = ({
   nodes,
   selectedNode,
   onNodeSelect,
+  onNodeUpdate,
   onNodeDelete,
   onExecute,
   isExecuting
@@ -78,6 +80,47 @@ const WorkflowCanvas = ({
     onNodeSelect(nodeId);
   };
 
+  const executeNodeWithSampleData = async (node: WorkflowNode): Promise<any> => {
+    console.log(`Executing ${node.type} node with sample data...`);
+    
+    switch (node.type) {
+      case "CSV Read":
+        console.log("CSV Read - Loading sample data:", sampleCsvData);
+        return { data: sampleCsvData, count: sampleCsvData.length };
+        
+      case "HTTP Request":
+        const endpoint = node.config?.url || "https://jsonplaceholder.typicode.com/posts";
+        console.log("HTTP Request - Fetching from:", endpoint);
+        const apiData = await simulateApiCall(endpoint);
+        return { data: apiData, count: apiData.length };
+        
+      case "Set":
+        console.log("Set - Applying transformations:", node.config?.mappings);
+        return { 
+          data: sampleCsvData.map(item => ({
+            feature_name: item.name,
+            owner_email: item.owner.email,
+            created_date: item.created_at,
+            status: item.status || 'active',
+            price_category: item.price > 100 ? 'expensive' : 'affordable'
+          })),
+          transformationsApplied: Object.keys(node.config?.mappings || {}).length
+        };
+        
+      case "Filter":
+        const filteredData = sampleCsvData.filter(item => item.status === 'active');
+        console.log("Filter - Filtered data:", filteredData);
+        return { data: filteredData, filtered: sampleCsvData.length - filteredData.length };
+        
+      case "Database":
+        console.log("Database - Inserting records:", node.config);
+        return { inserted: sampleCsvData.length, table: node.config?.table || 'products' };
+        
+      default:
+        return { processed: true, nodeType: node.type };
+    }
+  };
+
   return (
     <Card className="bg-gray-800/50 border-gray-600 h-full">
       <CardHeader>
@@ -86,23 +129,36 @@ const WorkflowCanvas = ({
             <Play size={20} />
             Workflow Canvas
           </CardTitle>
-          <Button
-            onClick={onExecute}
-            disabled={isExecuting || nodes.length === 0}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            {isExecuting ? (
-              <>
-                <Clock className="animate-spin mr-2" size={16} />
-                Executing...
-              </>
-            ) : (
-              <>
-                <Play className="mr-2" size={16} />
-                Run Workflow
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                console.log("Sample data available:", { csv: sampleCsvData.length, apis: 3 });
+              }}
+              className="text-cyan-400 border-cyan-400 hover:bg-cyan-400/20"
+            >
+              <Database size={16} className="mr-1" />
+              Sample Data Ready
+            </Button>
+            <Button
+              onClick={onExecute}
+              disabled={isExecuting || nodes.length === 0}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {isExecuting ? (
+                <>
+                  <Clock className="animate-spin mr-2" size={16} />
+                  Executing...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2" size={16} />
+                  Run Workflow
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -111,7 +167,14 @@ const WorkflowCanvas = ({
             <div className="text-center text-gray-400 mt-20">
               <Play size={48} className="mx-auto mb-4 opacity-50" />
               <p className="text-lg">Drop nodes here to build your workflow</p>
-              <p className="text-sm mt-2">Start with an HTTP Request or CSV Read node</p>
+              <p className="text-sm mt-2 text-cyan-400">
+                💡 Try: CSV Read → Set → Filter → Database
+              </p>
+              <div className="mt-4 p-3 bg-cyan-900/20 rounded-lg border border-cyan-500/30">
+                <p className="text-xs text-cyan-300">
+                  Sample data includes: Products, Categories, Pricing, Inventory
+                </p>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -179,6 +242,13 @@ const WorkflowCanvas = ({
                     {Object.keys(node.config).length > 0 && (
                       <div className="mt-2 text-xs text-gray-400">
                         <span>Configured: {Object.keys(node.config).join(', ')}</span>
+                      </div>
+                    )}
+
+                    {/* Sample data indicator */}
+                    {(node.type === "CSV Read" || node.type === "HTTP Request") && (
+                      <div className="mt-2 text-xs text-cyan-400">
+                        📊 Sample data available: {node.type === "CSV Read" ? "5 products" : "API endpoints"}
                       </div>
                     )}
                   </div>
