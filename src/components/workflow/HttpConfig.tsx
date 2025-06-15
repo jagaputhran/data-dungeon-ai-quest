@@ -5,21 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { WorkflowNode } from "@/components/WorkflowBuilder";
 import { Globe, Plus, Trash2, TestTube } from "lucide-react";
 import { useState } from "react";
 
 interface HttpConfigProps {
-  nodeId: string;
-  config: any;
-  onConfigUpdate: (config: any) => void;
+  node: WorkflowNode;
+  onUpdate: (nodeId: string, updates: Partial<WorkflowNode>) => void;
 }
 
-const HttpConfig = ({ nodeId, config, onConfigUpdate }: HttpConfigProps) => {
-  const [method, setMethod] = useState(config?.method || 'GET');
-  const [url, setUrl] = useState(config?.url || '');
-  const [headers, setHeaders] = useState(config?.headers || [{ key: '', value: '' }]);
-  const [body, setBody] = useState(config?.body || '');
-  const [timeout, setTimeout] = useState(config?.timeout || 30000);
+const HttpConfig = ({ node, onUpdate }: HttpConfigProps) => {
+  const [method, setMethod] = useState(node.config?.method || 'GET');
+  const [url, setUrl] = useState(node.config?.url || '');
+  const [headers, setHeaders] = useState(node.config?.headers || [{ key: '', value: '' }]);
+  const [body, setBody] = useState(node.config?.body || '');
+  const [timeout, setTimeout] = useState(node.config?.timeout || 30000);
   const [testResult, setTestResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -94,11 +94,11 @@ const HttpConfig = ({ nodeId, config, onConfigUpdate }: HttpConfigProps) => {
       timeout,
       testResult
     };
-    onConfigUpdate(httpConfig);
+    onUpdate(node.id, { config: httpConfig });
   };
 
   return (
-    <Card className="bg-gray-900/50 border-gray-600">
+    <Card className="bg-gray-800/50 border-gray-600">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Globe size={20} />

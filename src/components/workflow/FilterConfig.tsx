@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { WorkflowNode } from "@/components/WorkflowBuilder";
 import { Filter, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -17,19 +18,18 @@ interface FilterCondition {
 }
 
 interface FilterConfigProps {
-  nodeId: string;
-  config: any;
-  onConfigUpdate: (config: any) => void;
+  node: WorkflowNode;
+  onUpdate: (nodeId: string, updates: Partial<WorkflowNode>) => void;
 }
 
-const FilterConfig = ({ nodeId, config, onConfigUpdate }: FilterConfigProps) => {
+const FilterConfig = ({ node, onUpdate }: FilterConfigProps) => {
   const [conditions, setConditions] = useState<FilterCondition[]>(
-    config?.conditions || [
+    node.config?.conditions || [
       { id: '1', field: 'status', operator: 'equals', value: 'active', type: 'string' }
     ]
   );
-  const [logic, setLogic] = useState(config?.logic || 'AND');
-  const [customExpression, setCustomExpression] = useState(config?.customExpression || '');
+  const [logic, setLogic] = useState(node.config?.logic || 'AND');
+  const [customExpression, setCustomExpression] = useState(node.config?.customExpression || '');
 
   const operators = {
     string: [
@@ -92,7 +92,7 @@ const FilterConfig = ({ nodeId, config, onConfigUpdate }: FilterConfigProps) => 
       customExpression,
       generatedExpression: generateExpression()
     };
-    onConfigUpdate(filterConfig);
+    onUpdate(node.id, { config: filterConfig });
   };
 
   const generateExpression = () => {
@@ -130,7 +130,7 @@ const FilterConfig = ({ nodeId, config, onConfigUpdate }: FilterConfigProps) => 
   };
 
   return (
-    <Card className="bg-gray-900/50 border-gray-600">
+    <Card className="bg-gray-800/50 border-gray-600">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Filter size={20} />
