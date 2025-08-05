@@ -29,7 +29,7 @@ const Index = () => {
           <h1 className="text-5xl font-bold text-white mb-4 flex items-center justify-center gap-4 animate-fade-in">
             <Zap className="text-yellow-400 animate-bounce" size={48} />
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
-              Agent JAGA: AI-Powered Data & Automation Academy
+              Agent JAGA: Train, Think, Act — The Agentic AI Way
             </span>
             <Workflow className="text-cyan-400 animate-bounce animation-delay-75" size={48} />
           </h1>
